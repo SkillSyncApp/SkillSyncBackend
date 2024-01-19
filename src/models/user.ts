@@ -41,7 +41,7 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     bio: {
         type: String,
-        required: false,
+        required: true,
     },
 });
 
