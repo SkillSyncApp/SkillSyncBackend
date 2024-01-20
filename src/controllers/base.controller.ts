@@ -8,7 +8,7 @@ export class BaseController<ModelType>{
         this.model = model;
     }
 
-    // TODO remove from base controller - post dont have name property
+    // TODO remove from base controller - all models dont have name property
     async get(req: Request, res: Response) {
         try {
             const query = req.query.name ? { name: req.query.name } : {};
