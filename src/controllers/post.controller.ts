@@ -19,7 +19,7 @@ export class PostController extends BaseController<IPost> {
             res.status(200).send(posts);
         } catch (err) {
             console.error(err);
-            res.status(500).json("ERRR");
+            res.status(500).json({message: err.message});
         }
     }
 
