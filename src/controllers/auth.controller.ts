@@ -59,15 +59,15 @@ const login = async (req: Request, res: Response) => {
 }
 
 const logout = async (req: Request, res: Response) => {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers.authorization;
     const refreshToken = authHeader && authHeader.split(' ')[1]; // Bearer <token>
 
     if (refreshToken == null) return res.sendStatus(401);
-    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, user: { '_id': string }) => {
+    jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, async (err, user: { _id: string }) => {
         if (err) return res.sendStatus(401);
 
         try {
-            const userDb = await User.findOne({ '_id': user._id });
+            const userDb = await User.findOne({ _id: user._id });
             if (!userDb.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
                 userDb.refreshTokens = [];
 
@@ -85,7 +85,7 @@ const logout = async (req: Request, res: Response) => {
 }
 
 const refresh = async (req: Request, res: Response) => {
-    const authHeader = req.headers['authorization'];
+    const authHeader = req.headers.authorization;
     const refreshToken = authHeader && authHeader.split(' ')[1]; // Bearer <token>
 
     if (refreshToken == null) return res.sendStatus(401);
