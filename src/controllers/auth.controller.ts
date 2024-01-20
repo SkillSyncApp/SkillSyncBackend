@@ -49,6 +49,7 @@ const login = async (req: Request, res: Response) => {
             user: {
                 type: user.type,
                 name: user.name,
+                email: user.email,
                 image: user.image,
                 bio: user.bio
             }
