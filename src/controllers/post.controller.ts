@@ -9,7 +9,7 @@ export class PostController extends BaseController<IPost> {
         super(model);
     }
 
-    async getAllPostsByUserId(req: Request, res: Response) {
+    async getPostsByUserId (req: Request, res: Response) {
         try {
             const ownerId = req.params.ownerId;
             if (!ownerId) throw new Error("Invalid User Id");
@@ -20,6 +20,40 @@ export class PostController extends BaseController<IPost> {
         } catch (err) {
             console.error(err);
             res.status(500).json("ERRR");
+        }
+    }
+
+    async getCommentsCount (req: Request, res: Response) {
+        try {
+            const postId = req.params.id;
+            if (!postId) throw new Error("Invalid Post Id");   
+
+            const post = await PostModel.findById(postId);
+            if (!post) return res.status(404).json({ error: 'Post not found' });
+            
+            const commentsCount = post.commentsCount || 0;
+    
+            res.status(200).json({ commentsCount });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Error retrieving comments count' });
+        }
+    }
+
+    async getCommentsByPostId(req: Request, res: Response) {
+        try {
+            const postId = req.params.id;
+            if (!postId) throw new Error("Invalid Post Id");
+            
+            const post = await PostModel.findById(postId).populate('comments');
+            if (!post) return res.status(404).json({ error: 'Post not found' });
+    
+            const comments = post.comments || [];
+    
+            res.status(200).json(comments);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ error: 'Error retrieving comments' });
         }
     }
 }
