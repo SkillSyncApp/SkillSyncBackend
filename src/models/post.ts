@@ -7,7 +7,6 @@ export interface IPost extends Document {
     content: string;
     image: string;
     comments: Comment[];
-    commentsCount: number;
 }
 
 interface Comment {
@@ -36,10 +35,6 @@ const postSchema = new mongoose.Schema<IPost>({
         required: false,
     },
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
-    commentsCount: {
-        type: Number,
-        default: 0,
-    },
 });
 
 const PostModel = mongoose.model<IPost>("Post", postSchema);

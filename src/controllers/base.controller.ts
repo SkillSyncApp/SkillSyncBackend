@@ -39,7 +39,7 @@ export class BaseController<ModelType>{
         }
     }
 
-    async post(req: Request, res: Response) {
+    async create(req: Request, res: Response) {
         try {
             const obj = await this.model.create(req.body);
             res.status(201).send(obj);
