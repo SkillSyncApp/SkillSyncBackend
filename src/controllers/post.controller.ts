@@ -1,3 +1,4 @@
+import CommentModel from "../models/comment";
 import PostModel, { IPost } from "../models/post";
 import { BaseController } from "./base.controller";
 import { Request, Response } from "express";
@@ -19,11 +20,16 @@ export class PostController extends BaseController<IPost> {
             })
     }
 
+    getOwners(posts: IPost[]) {
+        return PostModel.populate(posts, { path: "ownerId", select: ['name', 'image', 'type'] });
+    }
+
     async get(_: Request, res: Response) {
         try {
             const posts = await this.getPosts({});
+            const postsWithOwners = await this.getOwners(posts);
 
-            res.status(200).send(posts);
+            res.status(200).send(postsWithOwners);
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: err.message });
@@ -36,8 +42,9 @@ export class PostController extends BaseController<IPost> {
             if (!ownerId) throw new Error("Invalid User Id");
 
             const posts = await this.getPosts({ ownerId: new mongoose.mongo.ObjectId(ownerId) });
+            const postsWithOwners = await this.getOwners(posts);
 
-            res.status(200).send(posts);
+            res.status(200).send(postsWithOwners);
         } catch (err) {
             console.error(err);
             res.status(500).json({ message: err.message });
@@ -49,12 +56,13 @@ export class PostController extends BaseController<IPost> {
             const postId = req.params.id;
             if (!postId) throw new Error("Invalid Post Id");
 
-            const post = await PostModel.findById(postId).populate('comments');
-            if (!post) return res.status(404).json({ error: 'Post not found' });
+            const postWithComments = await PostModel.findById(postId).populate('comments');
+            if (!postWithComments) return res.status(404).json({ error: 'Post not found' });
 
-            const comments = post.comments || [];
+            const comments = postWithComments.comments || [];
+            const commentsWithUsers = await CommentModel.populate(comments, { path: "userId", select: ['name', 'image'] });
 
-            res.status(200).json(comments);
+            res.status(200).json(commentsWithUsers);
         } catch (err) {
             console.error(err);
             res.status(500).json({ error: 'Error retrieving comments' });
