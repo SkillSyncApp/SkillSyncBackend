@@ -8,20 +8,6 @@ export class BaseController<ModelType>{
         this.model = model;
     }
 
-    // TODO remove from base controller - all models dont have name property
-    async get(req: Request, res: Response) {
-        try {
-            const query = req.query.name ? { name: req.query.name } : {};
-            const model = await this.model.find(query);
-
-            if (!model) return res.status(404).send("Not Found");
-
-            res.send(model);
-        } catch (err) {
-            res.status(500).json({ message: err.message });
-        }
-    }
-
     async getById(req: Request, res: Response) {
         try {
             const id = req.params.id;

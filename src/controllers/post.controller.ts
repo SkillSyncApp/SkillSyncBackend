@@ -9,20 +9,33 @@ export class PostController extends BaseController<IPost> {
         super(model);
     }
 
+    getPosts(filter: mongoose.FilterQuery<IPost>) {
+        return this.model.aggregate()
+            .match(filter)
+            .addFields({
+                commentsCount: {
+                    $size: "$comments"
+                }
+            })
+    }
+
+    async get(_: Request, res: Response) {
+        try {
+            const posts = await this.getPosts({});
+
+            res.status(200).send(posts);
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ message: err.message });
+        }
+    }
+
     async getPostsByUserId(req: Request, res: Response) {
         try {
             const ownerId = req.params.ownerId;
             if (!ownerId) throw new Error("Invalid User Id");
 
-            const posts = await this.model.aggregate()
-                .match({
-                    ownerId: new mongoose.mongo.ObjectId(ownerId)
-                })
-                .addFields({
-                    commentsCount: {
-                        $size: "$comments"
-                    }
-                });
+            const posts = await this.getPosts({ ownerId: new mongoose.mongo.ObjectId(ownerId) });
 
             res.status(200).send(posts);
         } catch (err) {
