@@ -1,5 +1,5 @@
 import CommentModel, { IComment } from "../models/comment";
-import PostModel, { IPost } from "../models/post";
+import PostModel from "../models/post";
 
 import { Request, Response } from "express";
 
@@ -23,7 +23,6 @@ const addComment = async (req: Request, res: Response) => {
         const savedComment = await comment.save();
 
         post.comments.push(savedComment.id);
-        post.commentsCount += 1;
         await post.save();
 
         res.status(200).send(savedComment);
