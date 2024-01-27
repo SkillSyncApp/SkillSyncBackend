@@ -24,6 +24,18 @@ export class PostController extends BaseController<IPost> {
         return PostModel.populate(posts, { path: "ownerId", select: ['name', 'image', 'type'] });
     }
 
+    async create(req: Request, res: Response) {
+        try {
+            const { user } = req;
+            req.body = { ...req.body, ownerId: user._id };
+
+            const newPost = await super.create(req, res);
+            res.status(200).send(newPost);
+        } catch (err) {
+            res.status(500).json({ message: err.message });
+        }
+    }
+
     async get(_: Request, res: Response) {
         try {
             const posts = await this.getPosts({});

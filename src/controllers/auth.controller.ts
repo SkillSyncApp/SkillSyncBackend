@@ -4,7 +4,7 @@ import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 
 const register = async (req: Request, res: Response) => {
-    const { name, email, password, type, bio } = req.body
+    const { name, email, password, type, bio, image } = req.body
 
     if (!name || !email || !password || !type || !bio)
         return res.status(400).send("can't register the user - missing info");
@@ -16,7 +16,7 @@ const register = async (req: Request, res: Response) => {
         const salt = await bcrypt.genSalt(10);
         const encryptedPassword = await bcrypt.hash(password, salt);
 
-        const rs2 = await User.create({ 'name': name, 'email': email, 'password': encryptedPassword, 'type': type, 'bio': bio });
+        const rs2 = await User.create({ name, email, password: encryptedPassword, type, bio, image });
         return res.status(201).send(rs2);
     } catch (err) {
         return res.status(400).send(err.message);
