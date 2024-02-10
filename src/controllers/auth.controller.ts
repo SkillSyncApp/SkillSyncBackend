@@ -159,10 +159,10 @@ const refresh = async (req: Request, res: Response) => {
   );
 };
 const updateProfile = async (req: Request, res: Response) => {
-  const { name, email, type, bio, image } = req.body;
+  const { name, bio, image } = req.body;
   //   console.log("Received data:", { name, email, type, bio, image });
 
-  if (!name || !email || !bio) {
+  if (!name || !bio) {
     return res.status(400).send("Can't update the user profile - missing info");
   }
 
@@ -171,7 +171,7 @@ const updateProfile = async (req: Request, res: Response) => {
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { name, email, type, bio, image },
+      { name, bio, image },
       { new: true }
     );
 
@@ -179,7 +179,15 @@ const updateProfile = async (req: Request, res: Response) => {
       return res.status(404).send("User not found");
     }
 
-    return res.status(200).send(updatedUser);
+    return res.status(200).send({
+      user: {
+        type: updatedUser.type,
+        name: updatedUser.name,
+        email: updatedUser.email,
+        image: updatedUser.image,
+        bio: updatedUser.bio,
+      },
+    });
   } catch (err) {
     return res.status(400).send(err.message);
   }
