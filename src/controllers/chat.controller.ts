@@ -23,11 +23,11 @@ const sendMessageToUser = async (req: Request, res: Response) => {
       // Check if a chat between these users already exists
       let chat = await Chat.findOne({ users: { $all: [senderId, receiverId] } });
 
-      // If no chat exists, create a new chat
-      if (!chat) {
-        chat = new Chat({ users: [senderId, receiverId], messages: [] });
-        await chat.save();
-      }
+     // If no chat exists, create a new chat
+     if (!chat) {
+      chat = new Chat({ users: [senderId, receiverId], messages: [], lastMessage: null });
+      await chat.save();
+    }
 
       // Create a new message
       const newMessage: IMessage = new Message({
