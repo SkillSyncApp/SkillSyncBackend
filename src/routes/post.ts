@@ -6,9 +6,18 @@ const router = express.Router();
 
 router.get("/", authMiddleware, postController.get.bind(postController));
 router.post("/", authMiddleware, postController.create.bind(postController));
-router.get("/:ownerId", authMiddleware, postController.getPostsByUserId.bind(postController));
+router.get(
+  "/:ownerId",
+  authMiddleware,
+  postController.getPostsByUserId.bind(postController)
+);
 router.put("/:id", authMiddleware, postController.putById.bind(postController));
-router.delete("/:id", authMiddleware, postController.deleteById.bind(postController));
+router.delete(
+  "/:id",
+  authMiddleware,
+  postController.deleteById.bind(postController)
+);
 router.get("/comments/:id", authMiddleware, postController.getCommentsByPostId);
+router.put("/:id", authMiddleware, postController.update.bind(postController));
 
 export default router;
