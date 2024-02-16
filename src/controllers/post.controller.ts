@@ -73,9 +73,7 @@ export class PostController extends BaseController<IPost> {
       const postId = req.params.id;
       if (!postId) throw new Error("Invalid Post Id");
 
-      const postWithComments = await PostModel.findById(postId).populate(
-        "comments"
-      );
+      const postWithComments = await PostModel.findById(postId).populate("comments");
       if (!postWithComments)
         return res.status(404).json({ error: "Post not found" });
 

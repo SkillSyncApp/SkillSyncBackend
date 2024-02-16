@@ -2,7 +2,8 @@ import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import Message, { IMessage } from '../models/message';
 import User from '../models/user';
-import Chat from '../models/chat';
+import ChatModel, { IChat } from '../models/chat';
+import UserModel from '../models/user'
 
 const sendMessageToUser = async (req: Request, res: Response) => {
     try {
@@ -21,11 +22,11 @@ const sendMessageToUser = async (req: Request, res: Response) => {
       }
 
       // Check if a chat between these users already exists
-      let chat = await Chat.findOne({ users: { $all: [senderId, receiverId] } });
+      let chat = await ChatModel.findOne({ users: { $all: [senderId, receiverId] } });
 
      // If no chat exists, create a new chat
      if (!chat) {
-      chat = new Chat({ users: [senderId, receiverId], messages: [], lastMessage: null });
+      chat = new ChatModel({ users: [senderId, receiverId], messages: [], lastMessage: null });
       await chat.save();
     }
 
@@ -66,7 +67,7 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
       }
 
     // Check if a chat between these users exists
-    const chat = await Chat.findOne({
+    const chat = await ChatModel.findOne({
         $or: [
           { users: [senderId, receiverId] },
           { users: [receiverId, senderId] },
@@ -112,7 +113,45 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
     }
   }
 
+  const getConversationsOverView = async (req: Request, res: Response) => {
+    try {
+      // Fetch all conversations where req.user._id is one of the users
+      const conversations = await ChatModel.find({
+        users: { $in: [req.user._id] },
+    }).populate('users', ['name', 'image']); 
+  
+    const conversationsOverview = await Promise.all(
+        conversations.map(async (conversation) => {
+          const conversationSender = await Promise.all(
+            conversation.users.map(async (userId) => {
+                try {
+                    const user = await UserModel.findById(userId).select('name image').lean();
+                    return {
+                      id: conversation._id,
+                      sender: {
+                        name: user.name || 'Unknown',
+                        image: user.image || 'Image',
+                      },
+                    };
+                  } catch (error) {
+                    console.error('Error fetching user:', error);
+                    throw error;
+                }
+            })
+        );
+
+            return conversationSender;
+        })
+    );
+      res.status(200).json({ conversations: conversationsOverview });
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+      res.status(500).json({ error: error.message });
+    }
+  };
+
 export default {
     sendMessageToUser,
-    getAllMessagesBetweenUsers
+    getAllMessagesBetweenUsers,
+    getConversationsOverView
 }
