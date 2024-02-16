@@ -1,6 +1,7 @@
 import { Schema, Document, model, Types } from 'mongoose';
 
 export interface IChat extends Document {
+  _id: String;
   users: Types.ObjectId[];
   messages: Types.ObjectId[];
   lastMessage: Types.ObjectId | null;
