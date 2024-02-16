@@ -65,10 +65,20 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
         return res.status(404).json({ message: 'One or more users not found' });
       }
 
-      // Check if a chat between these users exists
-      const chat = await Chat.findOne({
-        users: { $all: [senderId, receiverId] },
-      }).populate('messages');
+    // Check if a chat between these users exists
+    const chat = await Chat.findOne({
+        $or: [
+          { users: [senderId, receiverId] },
+          { users: [receiverId, senderId] },
+        ],
+      }).populate({
+        path: 'messages',
+        populate: {
+          path: 'sender',
+          model: 'User',
+          select: ['name', 'image'],
+        },
+      });  
 
       if (!chat) {
         return res.status(404).json({ message: 'Chat not found between users' });
@@ -94,7 +104,6 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
           };
         })
       );
-
 
       res.status(200).json({ messages });
     } catch (error) {
