@@ -39,10 +39,10 @@ const sendMessageToUser = async (req: Request, res: Response) => {
 
       await newMessage.save();
 
-      chat.messages.push(newMessage._id as Types.ObjectId);
+      chat.messages.push(message._id as Types.ObjectId);
       await chat.save();
 
-      res.status(200).json({ newMessage });
+      res.status(200).json(newMessage);
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: error.message });
@@ -68,10 +68,7 @@ const getConversation = async (req: Request, res: Response) => {
 
     // Check if a chat between these users exists
     const chat = await ChatModel.findOne({
-        $or: [
-          { users: [senderId, receiverId] },
-          { users: [receiverId, senderId] },
-        ],
+      users: { $all: [senderId, receiverId] }
       }).populate({
         path: 'messages',
         populate: {
@@ -93,7 +90,7 @@ const getConversation = async (req: Request, res: Response) => {
             throw new Error(`Message not found with ID: ${messageId}`);
           }
 
-          const sender = await User.findById(senderId, 'name image');
+          const sender = await User.findById(message.sender._id, 'name image');
 
           return {
             _id: message._id,
