@@ -115,43 +115,117 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
 
   const getConversationsOverView = async (req: Request, res: Response) => {
     try {
-      // Fetch all conversations where req.user._id is one of the users
-      const conversations = await ChatModel.find({
-        users: { $in: [req.user._id] },
-    }).populate('users', ['name', 'image']); 
-  
-    const conversationsOverview = await Promise.all(
-        conversations.map(async (conversation) => {
-          const conversationSender = await Promise.all(
-            conversation.users.map(async (userId) => {
-                try {
-                    const user = await UserModel.findById(userId).select('name image').lean();
-                    return {
-                      id: conversation._id,
-                      sender: {
-                        name: user.name || 'Unknown',
-                        image: user.image || 'Image',
-                      },
-                    };
-                  } catch (error) {
-                    console.error('Error fetching user:', error);
-                    throw error;
-                }
-            })
-        );
+        const userId = req.user._id
 
-            return conversationSender;
-        })
-    );
-      res.status(200).json({ conversations: conversationsOverview });
+        const conversations = await ChatModel.find({
+            users: { $in: [userId] }}).populate('users', ['name', 'image']); 
+  
+        console.log(conversations)
+        
+        const conversationSender = await Promise.all(conversations.map(async (conversation) => {
+            try {
+                const otherUserId = conversation.users.find(id => id.toString() !== userId);
+                const user = await UserModel.findById(otherUserId).select('name image');
+                return {
+                    id: conversation._id,
+                    sender: {
+                        name: user.name || 'Unknown',
+                        image: user.image || ''
+                    }
+                };
+            } catch (error) {
+                console.error('Error fetching user:', error);
+                throw error;
+            }
+        }));
+      res.status(200).json(conversationSender);
     } catch (error) {
       console.error('Error fetching conversations:', error);
       res.status(500).json({ error: error.message });
     }
   };
 
+  const addConversation = async (req: Request, res: Response) => {
+    try {
+        const senderId = req.user._id;
+        const { receiverId } = req.params;
+
+        console.log(senderId);
+        console.log(receiverId);
+
+        const sender = await UserModel.findById(senderId).select("_id");
+        const receiver = await UserModel.findById(receiverId).select("_id");
+
+        if (!sender || !receiver) {
+            return res.status(404).json({ error: 'Sender or receiver not found' });
+        }
+
+        // Ensure consistent order of users in the array
+        const users = [sender._id, receiver._id].sort();
+
+        // Check if a conversation between these users already exists
+        const existingConversation = await ChatModel.findOne({
+            $or: [
+                { users: [sender._id, receiver._id] },
+                { users: [receiver._id, sender._id] }
+            ]
+        });
+
+        if (existingConversation) {
+            // Conversation already exists
+            return res.status(400).json({ error: 'Conversation already exists' });
+        }
+
+        const newConversation = await ChatModel.create({
+            users: users,
+            messages: [],
+            lastMessage: ''
+        });
+
+        res.status(200).json({newConversation});
+    } catch (error) {
+        console.error('Error creating conversation:', error);
+        res.status(500).json({ error: error.message });
+    }
+}
+
+const deleteAllConversations = async (req: Request, res: Response) => {
+    try {
+        await ChatModel.deleteMany({});
+
+        res.status(200).json({ message: 'All conversations deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting conversations:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const getAllConversations = async (req: Request, res: Response) => {
+    try {
+        const allConversations = await ChatModel.find({})
+            .populate('users', ['name', 'image'])
+            .populate({
+                path: 'messages',
+                populate: {
+                    path: 'sender',
+                    model: 'User',
+                    select: ['name', 'image'],
+                },
+            });
+
+        res.status(200).json(allConversations);
+    } catch (error) {
+        console.error('Error fetching all conversations:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+
 export default {
     sendMessageToUser,
     getAllMessagesBetweenUsers,
-    getConversationsOverView
+    getConversationsOverView,
+    addConversation,
+    deleteAllConversations,
+    getAllConversations
 }

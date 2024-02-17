@@ -4,8 +4,12 @@ import chatController from "../controllers/chat.controller"
 
 const router = express.Router();
 
-router.post("/send-message/:receiverId", authMiddleware, chatController.sendMessageToUser);
-router.get("/list-messages/:receiverId", authMiddleware, chatController.getAllMessagesBetweenUsers);
+router.get("/messages/:receiverId", authMiddleware, chatController.getAllMessagesBetweenUsers);
 router.get("/conversations", authMiddleware, chatController.getConversationsOverView)
+router.get("/getAllConversations", authMiddleware, chatController.getAllConversations)
 
+router.post("/sendMessage/:receiverId", authMiddleware, chatController.sendMessageToUser);
+router.post('/addConversation/:receiverId', authMiddleware, chatController.addConversation)
+
+router.delete('/', authMiddleware, chatController.deleteAllConversations)
 export default router;
