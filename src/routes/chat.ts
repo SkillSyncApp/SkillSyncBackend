@@ -4,8 +4,8 @@ import chatController from "../controllers/chat.controller"
 
 const router = express.Router();
 
-router.get("/messages/:receiverId", authMiddleware, chatController.getAllMessagesBetweenUsers);
-router.get("/conversations", authMiddleware, chatController.getConversationsOverView)
+router.get("/messages/:receiverId", authMiddleware, chatController.getConversation);
+router.get("/conversationOverView", authMiddleware, chatController.getConversationsOverView)
 router.get("/getAllConversations", authMiddleware, chatController.getAllConversations)
 
 router.post("/sendMessage/:receiverId", authMiddleware, chatController.sendMessageToUser);

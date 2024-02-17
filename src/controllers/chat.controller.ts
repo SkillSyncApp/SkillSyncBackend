@@ -49,7 +49,7 @@ const sendMessageToUser = async (req: Request, res: Response) => {
     }
 }
 
-const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
+const getConversation = async (req: Request, res: Response) => {
     try {
       const { receiverId } = req.params;
       const senderId = req.user._id
@@ -88,25 +88,26 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
       // Fetch details for each message
       const messages = await Promise.all(
         (chat.messages as Types.ObjectId[]).map(async (messageId) => {
-          const message = await Message.findById(messageId).populate({
-            path: 'sender',
-            model: 'User',
-            select: ['name', 'image']
-          });
+          const message = await Message.findById(messageId)
           if (!message) {
             throw new Error(`Message not found with ID: ${messageId}`);
           }
 
+          const sender = await User.findById(senderId, 'name image');
+
           return {
             _id: message._id,
-            sender: message.sender,
+            sender: {
+              _id: sender._id,
+              name: sender.name,
+              image: sender.image || ''
+            },
             content: message.content,
-            createdAt: message.createdAt,
           };
         })
       );
 
-      res.status(200).json({ messages });
+      res.status(200).json(messages)
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Internal Server Error' });
@@ -119,9 +120,7 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
 
         const conversations = await ChatModel.find({
             users: { $in: [userId] }}).populate('users', ['name', 'image']); 
-  
-        console.log(conversations)
-        
+          
         const conversationSender = await Promise.all(conversations.map(async (conversation) => {
             try {
                 const otherUserId = conversation.users.find(id => id.toString() !== userId);
@@ -129,6 +128,7 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
                 return {
                     id: conversation._id,
                     sender: {
+                        _id: user._id,
                         name: user.name || 'Unknown',
                         image: user.image || ''
                     }
@@ -149,9 +149,6 @@ const getAllMessagesBetweenUsers = async (req: Request, res: Response) => {
     try {
         const senderId = req.user._id;
         const { receiverId } = req.params;
-
-        console.log(senderId);
-        console.log(receiverId);
 
         const sender = await UserModel.findById(senderId).select("_id");
         const receiver = await UserModel.findById(receiverId).select("_id");
@@ -223,7 +220,7 @@ const getAllConversations = async (req: Request, res: Response) => {
 
 export default {
     sendMessageToUser,
-    getAllMessagesBetweenUsers,
+    getConversation,
     getConversationsOverView,
     addConversation,
     deleteAllConversations,
