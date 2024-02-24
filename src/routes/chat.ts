@@ -4,12 +4,10 @@ import chatController from "../controllers/chat.controller"
 
 const router = express.Router();
 
-router.get("/messages/:receiverId", authMiddleware, chatController.getConversation);
-router.get("/conversationOverView", authMiddleware, chatController.getConversationsOverView)
-router.get("/getAllConversations", authMiddleware, chatController.getAllConversations)
+// TODO: middleware - check if user is part of the conversation he fetches/edit
+router.get("/conversation", authMiddleware, chatController.getConversations);
+router.get("/conversation/:id/messages", authMiddleware, chatController.getMessages);
+router.post("/conversation/:id/messages", authMiddleware, chatController.sendMessage);
 
-router.post("/sendMessage/:receiverId", authMiddleware, chatController.sendMessageToUser);
-router.post('/addConversation/:receiverId', authMiddleware, chatController.addConversation)
-
-router.delete('/', authMiddleware, chatController.deleteAllConversations)
+router.post("/conversation/:receiverId", authMiddleware, chatController.addConversation);
 export default router;
