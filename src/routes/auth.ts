@@ -7,7 +7,9 @@ const router = express.Router();
 router.post("/register", authController.register);
 router.post("/login", authController.login);
 router.post("/logout", authController.logout);
+router.post("/google", authController.logInGoogle);
 router.get("/refresh", authController.refresh);
 router.put("/update-profile", authMiddleware, authController.updateProfile);
+router.put("/update-additional-info", authMiddleware, authController.updateAdditionalInfo);
 
 export default router;
