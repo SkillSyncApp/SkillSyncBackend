@@ -4,9 +4,9 @@ export interface IUser extends Document {
     _id: mongoose.Types.ObjectId;
     name: string;
     email: string;
-    password: string;
+    password?: string;
     refreshTokens: string[];
-    type: 'company' | 'student';
+    type: 'company' | 'student' | 'unknown';
     image: string;
     bio: string;
 }
@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema<IUser>({
     },
     password: {
         type: String,
-        required: true,
+        required: false,
     },
     refreshTokens: {
         type: [String],
@@ -33,7 +33,7 @@ const userSchema = new mongoose.Schema<IUser>({
     type: {
         type: String,
         required: true,
-        enum: ['company', 'student'], // Specify the allowed values
+        enum: ['company', 'student', 'unknown'], // Specify the allowed values
     },
     image: {
         type: String,
