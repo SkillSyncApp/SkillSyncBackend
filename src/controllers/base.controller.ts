@@ -8,18 +8,18 @@ export class BaseController<ModelType>{
         this.model = model;
     }
 
-    async getById(req: Request, res: Response) {
+    async getById(req: Request, res: Response, selectFields?: string[]) {
         try {
             const id = req.params.id;
             const query = id ? { _id: id } : {};
 
-            const model = await this.model.find(query);
+            const model = await this.model.find(query).select(selectFields);
 
             if (!model.length && id) {
                 return res.status(404).json({ message: "Model not found" });
             }
 
-            res.send(model);
+            res.send(model[0]);
         } catch (err) {
             res.status(500).json({ message: err.message });
         }
