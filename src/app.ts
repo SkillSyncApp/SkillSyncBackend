@@ -15,7 +15,6 @@ const initApp = async (): Promise<Express> => {
     const server = http.createServer(app);
     const io = new Server(server);
 
-        
 /************************************************************************************
  *                              Set socket io
  ***********************************************************************************/
@@ -44,6 +43,7 @@ io.on("connection", async (socket) => {
 
     // Add APIs
     app.use("/api", BaseRouter)
+    app.use("/public", express.static("public"));
 
     mongoose.connection.once("open", () => console.log("Connected to Database"));
     mongoose.connection.on("error", (error) => console.error(error));
