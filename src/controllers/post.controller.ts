@@ -23,7 +23,7 @@ export class PostController extends BaseController<IPost> {
   getOwners(posts: IPost[]) {
     return PostModel.populate(posts, {
       path: "ownerId",
-      select: ["name", "image", "type"],
+      select: ["_id", "name", "image", "type"],
     });
   }
 
