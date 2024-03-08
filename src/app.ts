@@ -10,7 +10,9 @@ dotenv.config();
 
 const initApp = async (): Promise<Express> => {
   try {
+    console.log('InitApp: before connecting to mongo');
     await mongoose.connect(process.env.DB_URL);
+    console.log('InitApp: connected to mongo');
     const app = express();
     const server = http.createServer(app);
     const io = new Server(server);
