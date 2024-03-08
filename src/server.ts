@@ -27,17 +27,17 @@ initApp().then((app) => {
     http.createServer(app).listen(process.env.PORT);
   } else {
     console.log("production");
+    const options2 = {
+      key: fs.readFileSync('./client-key.pem'),
+      cert: fs.readFileSync('./client-cert.$pem')
+    };
+    https
+      .createServer(options2, app)
+      .listen(process.env.HTTPS_PORT, () => {
+        console.log(`Server running on http://localhost:${process.env.PORT}`);
+      })
+      .on("error", (err) => {
+        console.error("Error creating HTTPS server:", err.message);
+      });
   }
-  // const options = {
-  //   key: fs.readFileSync('../client-key.pem'),
-  //   cert: fs.readFileSync('../client-cert.$pem')
-  // };
-  https
-    .createServer(app)
-    .listen(process.env.HTTPS_PORT, () => {
-      console.log(`Server running on http://localhost:${process.env.PORT}`);
-    })
-    .on("error", (err) => {
-      console.error("Error creating HTTP server:", err.message);
-    });
 });
