@@ -16,7 +16,7 @@ export class BaseController<ModelType>{
             const model = await this.model.find(query).select(selectFields);
 
             if (!model.length && id) {
-                return res.status(404).json({ message: "Model not found" });
+                return res.status(401).json({ message: "Model not found" });
             }
 
             res.send(model[0]);
@@ -37,13 +37,16 @@ export class BaseController<ModelType>{
 
     async deleteById(req: Request, res: Response) {
         try {
-            const id = req.params.id
-
+            const id = req.params.id;
+    
             const obj = await this.model.findByIdAndDelete(id);
-            res.status(200).send(obj);
+    
+            if (!obj) return res.status(404).json({ error: "Model not found" });
+            
+            res.status(200).send({ message: "Model deleted successfully" });
         } catch (err) {
-            console.log(err);
-            res.status(500).send({ message: err.message });
+            console.error(err);
+            res.status(500).json({ error: "Internal Server Error" });
         }
     }
 
@@ -58,7 +61,7 @@ export class BaseController<ModelType>{
             { new: true } // Return the updated model
           );
     
-          if (!updateModel) return res.status(404).json({ error: "Model not found" });
+          if (!updateModel) return res.status(401).send({ error: "Model not found" });
     
           res.status(200).send(updateModel)
         } catch (err) {
