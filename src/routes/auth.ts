@@ -154,7 +154,7 @@ router.post("/login", authController.login);
 /**
  * @swagger
  * /auth/logout:
- *   get:
+ *   post:
  *     summary: Logout a user
  *     tags: [Auth]
  *     description: Need to provide the refresh token in the auth header
@@ -164,7 +164,7 @@ router.post("/login", authController.login);
  *       200:
  *         description: Logout completed successfully
  */
-router.get("/auth/logout", authController.logout);
+router.post("/logout", authController.logout);
 
 /**
  * @swagger
@@ -185,7 +185,7 @@ router.get("/auth/logout", authController.logout);
  *       401:
  *         description: Unauthorized - Invalid or expired refresh token.
  */
-router.get("/auth/refresh", authController.refresh);
+router.get("/refresh", authController.refresh);
 
 /**
  * @swagger
