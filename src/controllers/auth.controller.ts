@@ -136,16 +136,16 @@ const logout = async (req: Request, res: Response) => {
     refreshToken,
     process.env.JWT_REFRESH_SECRET,
     async (err, user: { _id: string }) => {
-      if (err) return res.sendStatus(401);
+      if (err) {
+        console.log(err);
+        return res.sendStatus(401);
+      }
 
       try {
         const userDb = await User.findOne({ _id: user._id });
-        if (
-          !userDb.refreshTokens ||
-          !userDb.refreshTokens.includes(refreshToken)
-        ) {
+        if (!userDb?.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
+          console.log("Invalid refresh token in database");
           userDb.refreshTokens = [];
-
           await userDb.save();
           return res.sendStatus(401);
         } else {
@@ -153,10 +153,11 @@ const logout = async (req: Request, res: Response) => {
             (t: string) => t !== refreshToken
           );
           await userDb.save();
-          return res.sendStatus(200);
+          return res.status(200).send("Logout successful");
         }
       } catch (err) {
-        res.sendStatus(401).send(err.message);
+        console.log("Error during logout:", err);
+        return res.sendStatus(401);
       }
     }
   );
@@ -172,19 +173,21 @@ const refresh = async (req: Request, res: Response) => {
     process.env.JWT_REFRESH_SECRET,
     async (err, user: { _id: string }) => {
       if (err) {
-        console.log(err);
         return res.sendStatus(401);
       }
+
       try {
         const userDb = await User.findOne({ _id: user._id });
-        if (
-          !userDb?.refreshTokens ||
-          !userDb.refreshTokens.includes(refreshToken)
-        ) {
+        if (!userDb) {
+          return res.status(401).send("User not found in the database");
+        }
+
+        if (!userDb.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
           userDb.refreshTokens = [];
           await userDb.save();
           return res.sendStatus(401);
         }
+
         const accessToken = jwt.sign(
           { _id: user._id },
           process.env.JWT_SECRET,
@@ -192,7 +195,8 @@ const refresh = async (req: Request, res: Response) => {
         );
         const newRefreshToken = jwt.sign(
           { _id: user._id },
-          process.env.JWT_REFRESH_SECRET
+          process.env.JWT_REFRESH_SECRET,
+          { expiresIn: process.env.JWT_REFRESH_EXPIRATION }
         );
 
         userDb.refreshTokens = userDb.refreshTokens.filter(
@@ -201,12 +205,13 @@ const refresh = async (req: Request, res: Response) => {
         userDb.refreshTokens.push(newRefreshToken);
 
         await userDb.save();
+
         return res.status(200).send({
           accessToken: accessToken,
-          refreshToken: refreshToken,
+          refreshToken: newRefreshToken,
         });
       } catch (err) {
-        res.sendStatus(401).send(err.message);
+        return res.status(500).send(err.message);
       }
     }
   );
