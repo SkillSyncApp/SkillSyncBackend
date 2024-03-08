@@ -29,7 +29,7 @@ initApp().then((app) => {
     console.log("production");
     const options2 = {
       key: fs.readFileSync('./client-key.pem'),
-      cert: fs.readFileSync('./client-cert.$pem')
+      cert: fs.readFileSync('./client-cert.pem')
     };
     https
       .createServer(options2, app)
