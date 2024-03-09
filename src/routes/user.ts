@@ -61,7 +61,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /user/{id}:
+ * /users/{id}:
  *   get:
  *     summary: Get user details by ID
  *     tags: [User]
@@ -86,35 +86,35 @@ const router = express.Router();
  */
 router.get("/:id?", authMiddleware, getUserOverview);
 
-/**
- * @swagger
- * /user:
- *   post:
- *     summary: Create a new user
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/UserRequest'
- *     responses:
- *       200:
- *         description: The created user
- *         content:
- *           application/json:
- *             schema:
- *               $ref: '#/components/schemas/User'
- *       500:
- *         description: Internal server error
- */
-router.post("/", authMiddleware, userController.create.bind(userController));
+// /**
+//  * @swagger
+//  * /users:
+//  *   post:
+//  *     summary: Create a new user
+//  *     tags: [User]
+//  *     security:
+//  *       - bearerAuth: []
+//  *     requestBody:
+//  *       required: true
+//  *       content:
+//  *         application/json:
+//  *           schema:
+//  *             $ref: '#/components/schemas/UserRequest'
+//  *     responses:
+//  *       200:
+//  *         description: The created user
+//  *         content:
+//  *           application/json:
+//  *             schema:
+//  *               $ref: '#/components/schemas/User'
+//  *       500:
+//  *         description: Internal server error
+//  */
+// router.post("/", authMiddleware, userController.create.bind(userController));
 
 /**
  * @swagger
- * /user/{id}:
+ * /users/{id}:
  *   put:
  *     summary: Update a user by ID
  *     tags: [User]
@@ -149,7 +149,7 @@ router.put("/:id", authMiddleware, userController.putById.bind(userController));
 
 /**
  * @swagger
- * /user/{id}:
+ * /users/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]

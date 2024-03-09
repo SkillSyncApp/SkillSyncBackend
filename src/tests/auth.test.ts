@@ -19,7 +19,6 @@ let refreshToken: string;
 let newRefreshToken: string;
 
 beforeAll(async () => {
-  console.log("initApp");
   app = await initApp();
   await User.deleteMany({ email: userData.email });
 });
