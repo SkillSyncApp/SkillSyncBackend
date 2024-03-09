@@ -27,7 +27,6 @@ const addComment = async (req: Request, res: Response) => {
 
         res.status(200).send(savedComment);
     } catch (error) {
-        console.error(error);
         res.status(500).send({ error: 'Internal Server Error' });
     }
 }
@@ -39,7 +38,6 @@ const deleteComment = async (req: Request, res: Response) => {
         const post = await PostModel.findById(postId);
         if (!post) return res.status(404).send({ error: 'Post not found' });
 
-        // TODO - WHAT IF THE FIRST REQUEST SUCCESS, BUT THE SECOND FAILED.
         await PostModel.findByIdAndUpdate(postId, { $pull: { comments: commentId }, $inc: { commentsCount: -1 } }, { new: true });
 
         const deletedComment = await CommentModel.findByIdAndDelete(commentId);
@@ -49,7 +47,6 @@ const deleteComment = async (req: Request, res: Response) => {
 
         res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
-        console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
     }
 };

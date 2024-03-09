@@ -44,7 +44,6 @@ const logInGoogle = async (req: Request, res: Response) => {
           }
       });
     } catch (err) {
-      console.log(err)
       return res.status(400).send(err);
     }
   }
@@ -137,14 +136,12 @@ const logout = async (req: Request, res: Response) => {
     process.env.JWT_REFRESH_SECRET,
     async (err, user: { _id: string }) => {
       if (err) {
-        console.log(err);
         return res.sendStatus(401);
       }
 
       try {
         const userDb = await User.findOne({ _id: user._id });
         if (!userDb?.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
-          console.log("Invalid refresh token in database");
           userDb.refreshTokens = [];
           await userDb.save();
           return res.sendStatus(401);
@@ -156,7 +153,6 @@ const logout = async (req: Request, res: Response) => {
           return res.status(200).send("Logout successful");
         }
       } catch (err) {
-        console.log("Error during logout:", err);
         return res.sendStatus(401);
       }
     }

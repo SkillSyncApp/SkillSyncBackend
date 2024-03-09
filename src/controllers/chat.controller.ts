@@ -116,7 +116,6 @@ const addConversation = async (req: Request, res: Response) => {
 
     res.status(200).json(newConversation);
   } catch (error) {
-    console.error('Error creating conversation:', error);
     res.status(500).json({ error: error.message });
   }
 }

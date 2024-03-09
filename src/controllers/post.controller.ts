@@ -46,7 +46,6 @@ export class PostController extends BaseController<IPost> {
 
       res.status(200).send(postsWithOwners);
     } catch (err) {
-      console.error(err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -54,16 +53,22 @@ export class PostController extends BaseController<IPost> {
   async getPostsByUserId(req: Request, res: Response) {
     try {
       const ownerId = req.params.ownerId;
-      if (!ownerId) throw new Error("Invalid User Id");
+
+      if (!mongoose.Types.ObjectId.isValid(ownerId)) {
+        return res.status(404).send({"error": "ownerId isn't valid"})
+      }
 
       const posts = await this.getPosts({
         ownerId: new mongoose.mongo.ObjectId(ownerId),
       });
       const postsWithOwners = await this.getOwners(posts);
 
+      if (!postsWithOwners) {
+        return res.status(500).json({ message: "Failed to process posts" });
+      }
+
       res.status(200).send(postsWithOwners);
     } catch (err) {
-      console.error(err);
       res.status(500).json({ message: err.message });
     }
   }
@@ -73,7 +78,9 @@ export class PostController extends BaseController<IPost> {
       const postId = req.params.id;
       if (!postId) throw new Error("Invalid Post Id");
 
-      const postWithComments = await PostModel.findById(postId).populate("comments");
+      const postWithComments = await PostModel.findById(postId).populate(
+        "comments"
+      );
       if (!postWithComments)
         return res.status(404).json({ error: "Post not found" });
 
@@ -85,7 +92,6 @@ export class PostController extends BaseController<IPost> {
 
       res.status(200).json(commentsWithUsers);
     } catch (err) {
-      console.error(err);
       res.status(500).json({ error: "Error retrieving comments" });
     }
   }
@@ -107,7 +113,6 @@ export class PostController extends BaseController<IPost> {
 
       res.status(200).json(updatedPost);
     } catch (error) {
-      console.error(error);
       res.status(500).json({ error: "Internal Server Error" });
     }
   }

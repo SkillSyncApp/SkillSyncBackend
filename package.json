@@ -4,7 +4,7 @@
   "description": "",
   "main": "src/server.js",
   "scripts": {
-    "test": "tsc && jest --detectOpenHandles --forceExit",
+    "test": "tsc && jest --coverage --detectOpenHandles --forceExit",
     "start": "tsc && node ./dist/server.js",
     "dev": "tsnd --respawn --files ./src/server.ts",
     "tsc": "tsc",
