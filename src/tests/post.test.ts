@@ -23,7 +23,7 @@ const userData = {
 
 const postData = {
   _id: new mongoose.Types.ObjectId(),
-  ownerId: new mongoose.Types.ObjectId(),
+  ownerId: userData._id,
   title: 'Test Post',
   content: 'This is a test post.',
   image: 'test-image.jpg',
@@ -45,6 +45,8 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
+  await Post.deleteMany({ ownerId: postData.ownerId });
+  await Post.deleteMany({ ownerId: postData._id });
   await mongoose.connection.close();
 });
 

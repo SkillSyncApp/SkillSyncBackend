@@ -37,11 +37,15 @@ const deleteComment = async (req: Request, res: Response) => {
         const {postId, commentId} = req.params;
 
         const post = await PostModel.findById(postId);
-        if (!post) return res.status(404).json({ error: 'Post not found' });
+        if (!post) return res.status(404).send({ error: 'Post not found' });
 
         // TODO - WHAT IF THE FIRST REQUEST SUCCESS, BUT THE SECOND FAILED.
         await PostModel.findByIdAndUpdate(postId, { $pull: { comments: commentId }, $inc: { commentsCount: -1 } }, { new: true });
-        await CommentModel.findByIdAndDelete(commentId);
+
+        const deletedComment = await CommentModel.findByIdAndDelete(commentId);
+        if (!deletedComment) {
+            return res.status(404).json({ error: 'Comment not found' });
+        }
 
         res.status(200).json({ message: 'Comment deleted successfully' });
     } catch (error) {
