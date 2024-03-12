@@ -5,7 +5,10 @@ export interface IPost extends Document {
     ownerId: mongoose.Types.ObjectId;
     title: string;
     content: string;
-    image: string;
+    image: {
+        originalName?: string;
+        serverFilename?: string;
+    } | null,
     comments: Comment[];
 }
 
@@ -31,8 +34,8 @@ const postSchema = new mongoose.Schema<IPost>({
         required: true,
     },
     image: {
-        type: String,
-        required: false,
+        originalName: { type: String, required: false },
+        serverFilename: { type: String, required: false }
     },
     comments: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Comment' }],
 });
