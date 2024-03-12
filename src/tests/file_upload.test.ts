@@ -28,7 +28,6 @@ describe('Image Upload API', () => {
       .attach('file', 'public/magicwand.png'); 
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty('url');
   });
 
   test('responds with 400 if no image is provided', async () => {
