@@ -8,7 +8,6 @@
     "start": "tsc && node ./dist/server.js",
     "dev": "tsnd --respawn --files ./src/server.ts",
     "tsc": "tsc",
-    "prod-try": "cp .envprod .env && tsc -p tsconfig_prod.json && node ./dist/server.js",
     "prod": "cp .envprod .env && tsc -p tsconfig_prod.json && pm2 restart ecosystem.config.js --env production",
     "prod1": "cp .envprod .env && tsc -p tsconfig_prod.json && node ./dist/server.js"
   },
