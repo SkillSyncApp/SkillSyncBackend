@@ -181,39 +181,4 @@ router.get(
   chatController.getMessages
 );
 
-/**
- * @swagger
- * /chat/conversation/{id}/messages:
- *   post:
- *     summary: Send a message to a conversation
- *     tags: [Chat]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the conversation
- *         schema:
- *           type: string
- *     requestBody:
- *       required: true
- *       content:
- *         application/json:
- *           schema:
- *             $ref: '#/components/schemas/MessageRequest'
- *     responses:
- *       200:
- *         description: Message sent successfully
- *       404:
- *         description: Conversation not found
- *       500:
- *         description: Internal server error
- */
-router.post(
-  "/conversation/:id/messages",
-  authMiddleware,
-  chatController.sendMessage
-);
-
 export default router;

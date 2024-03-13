@@ -62,32 +62,6 @@ const getMessages = async (req: Request, res: Response) => {
   }
 }
 
-const sendMessage = async (req: Request, res: Response) => {
-  try {
-    const { id: conversationId } = req.params;
-    const { userId, content } = req.body;
-
-    const conversation = await ChatModel.findById(conversationId);
-    if (!conversation) {
-      return res.status(404).json({ error: 'Conversation not found' });
-    }
-
-    const message: IMessage = new MessageModel({
-      content,
-      sender: userId
-    })
-
-    const savedMessage = await message.save();
-
-    conversation.messages.push(savedMessage.id);
-    await conversation.save();
-
-    res.status(200).send(conversation.messages);
-  } catch (error) {
-    res.status(500).send({ message: error.message })
-  }
-}
-
 const addConversation = async (req: Request, res: Response) => {
   try {
     const { _id: userId } = req.user;
@@ -124,6 +98,5 @@ export default {
   getConversations,
   getConversationWith,
   getMessages,
-  sendMessage,
   addConversation,
 }

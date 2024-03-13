@@ -1,10 +1,8 @@
-import express, { Express } from "express";
-import mongoose from "mongoose";
-import BaseRouter from "./routes/index"
 import cors from 'cors';
 import dotenv from 'dotenv';
-import http from 'http';
-import { Server, Socket } from 'socket.io';
+import express, { Express } from "express";
+import mongoose from "mongoose";
+import BaseRouter from "./routes/index";
 
 dotenv.config();
 
@@ -13,30 +11,10 @@ const initApp = async (): Promise<Express> => {
     await mongoose.connect(process.env.DB_URL);
     console.log('Connected to DB');
     const app = express();
-    const server = http.createServer(app);
-    const io = new Server(server);
 
-/************************************************************************************
- *                              Set socket io
- ***********************************************************************************/
-
-io.on("connection", async (socket) => {
-  console.log("A user connected", socket.id);
-
-  socket.on("chat message", async (message) => {
-    console.log("message from client", JSON.parse(message));
-    // TODO save message to DB by calling sendMessage endpoint
-    io.emit("chat message", JSON.stringify(message));
-  });
-  // Handle disconnect event
-  socket.on("disconnect", () => {
-    console.log("A user disconnected");
-  });
-});
-    
-/************************************************************************************
-                                Set basic express settings
- ***********************************************************************************/
+    /************************************************************************************
+                                    Set basic express settings
+     ***********************************************************************************/
 
     app.use(cors());
     app.use(express.json());
