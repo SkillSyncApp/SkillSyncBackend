@@ -7,6 +7,20 @@ export class BaseController<ModelType> {
     this.model = model;
   }
 
+  async getAll(req: Request, res: Response, selectFields?: string[]) {
+    try {
+      const models = await this.model.find().select(selectFields);
+      
+      if (!models) {
+        return res.status(404).json({ message: "User not found" });
+    }
+
+      res.send(models);
+    } catch (err) {
+      res.status(500).json({ message: err.message });
+    }
+  }
+
   async getById(req: Request, res: Response, selectFields?: string[]) {
     try {
       const id = req.params.id;
