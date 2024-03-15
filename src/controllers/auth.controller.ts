@@ -18,22 +18,27 @@ const logInGoogle = async (req: Request, res: Response) => {
     const payload = ticket.getPayload();
 
     const { name, email, picture } = payload;
+
     let user = await User.findOne({ email: email });
+
+    let image = null;
+    if (picture != null) {
+      image = {
+        originalName: "google " + name,
+        serverFilename: picture,
+      };
+    }
+
     if (!user) {
       user = await User.create({
         name,
         email,
+        image,
         type: "unknown",
-        bio: `My name is ${name}. Registration from Google.`,
+        bio: " ",
       });
     }
 
-    if (picture)
-      user.image = {
-        originalName: payload.picture,
-        serverFilename: "google " + payload.name,
-      };
-      
     const tokens = await generateTokens(user);
     return res.status(200).send({
       accessToken: tokens.accessToken,
@@ -43,7 +48,10 @@ const logInGoogle = async (req: Request, res: Response) => {
         type: user.type,
         name: user.name,
         email: user.email,
-        image: user.image,
+        image: {
+          originalName: "google " + payload.name +".png",
+          serverFilename: picture,
+        },
         bio: user.bio,
       },
     });

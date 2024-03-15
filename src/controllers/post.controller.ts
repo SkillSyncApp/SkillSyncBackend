@@ -55,7 +55,7 @@ export class PostController extends BaseController<IPost> {
       const ownerId = req.params.ownerId;
 
       if (!mongoose.Types.ObjectId.isValid(ownerId)) {
-        return res.status(404).send({"error": "ownerId isn't valid"})
+        return res.status(404).send({ error: "ownerId isn't valid" });
       }
 
       const posts = await this.getPosts({

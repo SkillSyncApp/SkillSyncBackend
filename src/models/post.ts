@@ -5,10 +5,10 @@ export interface IPost extends Document {
     ownerId: mongoose.Types.ObjectId;
     title: string;
     content: string;
-    image: {
+    image?: {
         originalName?: string;
         serverFilename?: string;
-    } | null,
+    },
     comments: Comment[];
 }
 

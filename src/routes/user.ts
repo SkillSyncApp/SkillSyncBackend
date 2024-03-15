@@ -86,32 +86,6 @@ const router = express.Router();
  */
 router.get("/:id?", authMiddleware, getUserOverview);
 
-// /**
-//  * @swagger
-//  * /users:
-//  *   post:
-//  *     summary: Create a new user
-//  *     tags: [User]
-//  *     security:
-//  *       - bearerAuth: []
-//  *     requestBody:
-//  *       required: true
-//  *       content:
-//  *         application/json:
-//  *           schema:
-//  *             $ref: '#/components/schemas/UserRequest'
-//  *     responses:
-//  *       200:
-//  *         description: The created user
-//  *         content:
-//  *           application/json:
-//  *             schema:
-//  *               $ref: '#/components/schemas/User'
-//  *       500:
-//  *         description: Internal server error
-//  */
-// router.post("/", authMiddleware, userController.create.bind(userController));
-
 /**
  * @swagger
  * /users/{id}:

@@ -61,9 +61,7 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await Post.deleteMany({ ownerId: postData.ownerId });
-  await User.deleteMany({ email: userData.email });
-
-  await User.deleteMany({ email: secondUserData.email });
+  await User.deleteMany({ email: { $in: [userData.email, secondUserData.email] } });
 
   // Close the MongoDB connection
   await mongoose.connection.close();

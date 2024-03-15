@@ -7,10 +7,10 @@ export interface IUser extends Document {
     password?: string;
     refreshTokens: string[];
     type: 'company' | 'student' | 'unknown';
-    image: {
+    image?: {
         originalName?: string;
         serverFilename?: string;
-    } | null,
+    };
     bio: string;
 }
 
@@ -39,8 +39,8 @@ const userSchema = new mongoose.Schema<IUser>({
         enum: ['company', 'student', 'unknown'], // Specify the allowed values
     },
     image: {
-        type: String,
-        required: false,
+        originalName: { type: String, required: false },
+        serverFilename: { type: String, required: false }
     },
     bio: {
         type: String,
