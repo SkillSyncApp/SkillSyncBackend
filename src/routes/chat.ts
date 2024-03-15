@@ -1,6 +1,7 @@
 import express from "express";
 import authMiddleware from "../middlewares/auth_middleware";
 import chatController from "../controllers/chat.controller";
+import conversationGuardMiddleware from "../middlewares/conversation_guard_middleware";
 
 const router = express.Router();
 
@@ -178,6 +179,7 @@ router.post(
 router.get(
   "/conversation/:id/messages",
   authMiddleware,
+  conversationGuardMiddleware,
   chatController.getMessages
 );
 
