@@ -7,6 +7,7 @@ import swaggerJsDoc from "swagger-jsdoc";
 import { Socket, Server as SocketServer } from 'socket.io';
 import { sendMessageToConversation } from "./services/chat.service";
 import { verifyToken } from "./middlewares/auth_middleware";
+import { isUserPartOfConversation } from "./middlewares/conversation_guard_middleware";
 
 initApp().then((app) => {
   const options = {
@@ -71,8 +72,14 @@ initApp().then((app) => {
     console.log("[SOCKET LOG]: user connected to socket stream");
 
     socket.on("joinRoom", async (conversationId) => {
-      console.log(`[SOCKET LOG]: user has connected to room ${conversationId}`);
-      socket.join(conversationId);
+      const canJoinRoom = await isUserPartOfConversation(conversationId, socket.data.userId);
+
+      if (canJoinRoom) {
+        console.log(`[SOCKET LOG]: user has connected to room ${conversationId}`);
+        socket.join(conversationId);
+      } else {
+        console.log(`[SOCKET LOG ERROR]: user has no access to connect to room ${conversationId}`);
+      }
     });
 
     socket.on("sendMessage", async (data) => {

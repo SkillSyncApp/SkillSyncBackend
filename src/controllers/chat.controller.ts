@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import ChatModel from "../models/chat";
+import MessageModel from "../models/message";
 import UserModel from "../models/user";
-import MessageModel, { IMessage } from "../models/message";
 
 const getConversations = async (req: Request, res: Response) => {
   try {
