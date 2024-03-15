@@ -6,8 +6,8 @@ import initApp from "../app";
 import User from "../models/user";
 
 describe("User Endpoints", () => {
-    let accessToken: string;
-    let userId: string;
+  let accessToken: string;
+  let userId: string;
 
   let app: Express;
 
@@ -41,7 +41,7 @@ describe("User Endpoints", () => {
 
     // Close the MongoDB connection
     await mongoose.connection.close();
-  }, 10000)
+  }, 10000);
 
   describe("GET /api/users/:id", () => {
     test("should get user details by ID", async () => {

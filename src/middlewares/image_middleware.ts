@@ -1,5 +1,7 @@
 import multer from "multer";
-import { Request, Response } from "express";
+import { Request } from "express";
+
+const maxSize = 10 * 1024 * 1024; // 10MB
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -14,6 +16,7 @@ const upload = multer({
       cb(null, Date.now() + "." + ext);
     }
   }),
+  limits: { fileSize: maxSize }
 });
 
 export default upload;
