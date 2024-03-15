@@ -32,6 +32,20 @@ afterAll(async () => {
 
 describe("Authentication tests", () => {
   describe("Registration API", () => {
+    it("should handle error during user registration", async () => {
+      // Mocking the User.create method to throw an error
+      jest.spyOn(User, 'create').mockImplementationOnce(() => {
+        throw new Error('Mocked user creation error');
+      });
+
+      const response = await request(app)
+        .post("/api/auth/register")
+        .send(userData)
+        .expect(400); // Expecting 400 status code for the caught error
+
+      expect(response.text).toContain("Mocked user creation error");
+    });
+
     it("should register a new user", async () => {
       const response = await request(app)
         .post("/api/auth/register")
@@ -257,9 +271,92 @@ describe("Authentication tests", () => {
 
       expect(response.text).toContain("Unauthorized");
     });
+
+    it("should return 400 if bio field is missing", async () => {
+      const requestData = {
+        // Missing bio field
+        type: "teacher",
+      };
+  
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(requestData)
+        .expect(400);
+  
+      expect(response.text).toBe("Can't update the user additional info - missing info");
+    });
+  
+    // Test for missing type field
+    it("should return 400 if type field is missing", async () => {
+      const requestData = {
+        bio: "Updated additional info",
+        // Missing type field
+      };
+  
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(requestData)
+        .expect(400);
+  
+      expect(response.text).toBe("Can't update the user additional info - missing info");
+    });
+  
+    // Test for missing both bio and type fields
+    it("should return 400 if both bio and type fields are missing", async () => {
+      const requestData = {
+        // Missing both bio and type fields
+      };
+  
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(requestData)
+        .expect(400);
+  
+      expect(response.text).toBe("Can't update the user additional info - missing info");
+    });
+
+    it("should return 404 if user is not found", async () => {
+      // Mocking the User.findByIdAndUpdate method to return null
+      jest.spyOn(User, 'findByIdAndUpdate').mockResolvedValueOnce(null);
+  
+      const updatedData = {
+        type: "teacher",
+        bio: "Updated additional info",
+      };
+  
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(updatedData)
+        .expect(404);
+  
+      expect(response.text).toBe("User not found");
+    });
+  
+    it("should handle errors during update", async () => {
+      // Mocking the User.findByIdAndUpdate method to throw an error
+      jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
+        throw new Error('Mocked update error');
+      });
+  
+      const updatedData = {
+        type: "teacher",
+        bio: "Updated additional info",
+      };
+  
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(updatedData)
+        .expect(400);
+  
+      expect(response.text).toBe("Mocked update error");
+    });
   });
 
-  // Google login tests
   describe("Google Login API", () => {
     it("should return 200 with access and refresh tokens for Google login", async () => {
       const mockRes = {
@@ -298,25 +395,23 @@ describe("Authentication tests", () => {
       expect(response.body.user.image).toBe(mockGoogleUser.picture);
     });
 
-    // it("should return 400 with error message for invalid Google credential", async () => {
-    //   // Mock verifyIdToken function to simulate invalid Google credential
-    //   (OAuth2Client.prototype.verifyIdToken as any).mockRejectedValue(
-    //     new Error("Invalid Google credential")
-    //   );
-
-    //   const response = await request(app)
-    //     .post("/api/auth/google")
-    //     .send({ credentialResponse: { credential: "invalidCredential" } });
-
-    //   expect(response.status).toBe(400);
-    //   expect(response.body.error).toBe("Invalid Google credential");
-    // });
-
-    // it("should return 400 with error message for missing Google credential", async () => {
-    //   const response = await request(app).post("/api/auth/google").send({});
-
-    //   expect(response.status).toBe(400);
-    //   expect(response.body.error).toBe("Missing Google credential");
-    // }, 20000);
+    it("should return 400 for invalid Google credential", async () => {
+      const mockRes = {
+        status: jest.fn(() => mockRes),
+        send: jest.fn(),
+      };
+  
+      // Mock verifyIdToken function of OAuth2Client to throw an error
+      (OAuth2Client.prototype.verifyIdToken as any).mockRejectedValue(new Error("Invalid token"));
+  
+      // Send a request to the Google login endpoint
+      const response = await request(app)
+        .post("/api/auth/google")
+        .send({ credentialResponse: { credential: "mockedGoogleCredential" } });
+  
+      // Assert response status code and error message
+      expect(response.status).toBe(400);
+      expect(response.text).toBe("Invalid Google credential");
+    });
   });
 });
