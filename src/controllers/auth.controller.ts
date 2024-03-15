@@ -2,51 +2,55 @@ import { Request, Response } from "express";
 import User, { IUser } from "../models/user";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import {OAuth2Client} from "google-auth-library";
+import { OAuth2Client } from "google-auth-library";
 
 const client = new OAuth2Client();
 
 const logInGoogle = async (req: Request, res: Response) => {
-  const {credentialResponse, bio, type} = req.body;
-  const credential = credentialResponse.credential
+  const { credentialResponse, bio, type } = req.body;
+  const credential = credentialResponse.credential;
 
   try {
     const ticket = await client.verifyIdToken({
-    idToken: credential,
-    audience: process.env.GOOGLE_CLIENT_ID,
-  })
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
     const payload = ticket.getPayload();
 
-    const {name, email, picture} = payload;
-    let user = await User.findOne({ 'email': email });
+    const { name, email, picture } = payload;
+    let user = await User.findOne({ email: email });
     if (!user) {
-        user = await User.create({
-          name,
-          email,
-          type: "unknown",
-          bio: `My name is ${name}. Registration from Google.`,
-        });
-    }
-
-    if(picture) user.image = payload.picture;
-
-    const tokens = await generateTokens(user)
-      return res.status(200).send({
-          accessToken: tokens.accessToken,
-          refreshToken: tokens.refreshToken,
-          user: {
-            _id: user._id,
-            type: user.type,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            bio: user.bio,
-          }
+      user = await User.create({
+        name,
+        email,
+        type: "unknown",
+        bio: `My name is ${name}. Registration from Google.`,
       });
-    } catch (err) {
-      return res.status(400).send("Invalid Google credential");
     }
+
+    if (picture)
+      user.image = {
+        originalName: payload.picture,
+        serverFilename: "google " + payload.name,
+      };
+      
+    const tokens = await generateTokens(user);
+    return res.status(200).send({
+      accessToken: tokens.accessToken,
+      refreshToken: tokens.refreshToken,
+      user: {
+        _id: user._id,
+        type: user.type,
+        name: user.name,
+        email: user.email,
+        image: user.image,
+        bio: user.bio,
+      },
+    });
+  } catch (err) {
+    return res.status(400).send("Invalid Google credential");
   }
+};
 
 const register = async (req: Request, res: Response) => {
   const { name, email, password, type, bio } = req.body;
@@ -66,7 +70,7 @@ const register = async (req: Request, res: Response) => {
       email,
       password: encryptedPassword,
       type,
-      bio
+      bio,
     });
     return res.status(201).send(rs2);
   } catch (err) {
@@ -89,9 +93,9 @@ const generateTokens = async (user: IUser) => {
   await user.save();
   return {
     accessToken: accessToken,
-    refreshToken: refreshToken
-  }
-}
+    refreshToken: refreshToken,
+  };
+};
 
 const login = async (req: Request, res: Response) => {
   const { email, password } = req.body;
@@ -107,7 +111,7 @@ const login = async (req: Request, res: Response) => {
     const match = await bcrypt.compare(password, user.password);
     if (!match) return res.status(401).send("email or password incorrect");
 
-    const tokens = await generateTokens(user)
+    const tokens = await generateTokens(user);
 
     return res.status(200).send({
       accessToken: tokens.accessToken,
@@ -119,7 +123,7 @@ const login = async (req: Request, res: Response) => {
         email: user.email,
         image: user.image,
         bio: user.bio,
-      }
+      },
     });
   } catch (err) {
     return res.status(400).send(err.message);
@@ -141,7 +145,10 @@ const logout = async (req: Request, res: Response) => {
 
       try {
         const userDb = await User.findOne({ _id: user._id });
-        if (!userDb?.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
+        if (
+          !userDb?.refreshTokens ||
+          !userDb.refreshTokens.includes(refreshToken)
+        ) {
           userDb.refreshTokens = [];
           await userDb.save();
           return res.sendStatus(401);
@@ -178,7 +185,10 @@ const refresh = async (req: Request, res: Response) => {
           return res.status(401).send("User not found in the database");
         }
 
-        if (!userDb.refreshTokens || !userDb.refreshTokens.includes(refreshToken)) {
+        if (
+          !userDb.refreshTokens ||
+          !userDb.refreshTokens.includes(refreshToken)
+        ) {
           userDb.refreshTokens = [];
           await userDb.save();
           return res.sendStatus(401);
@@ -251,7 +261,9 @@ const updateAdditionalInfo = async (req: Request, res: Response) => {
   const { bio, type } = req.body;
 
   if (!bio || !type) {
-    return res.status(400).send("Can't update the user additional info - missing info");
+    return res
+      .status(400)
+      .send("Can't update the user additional info - missing info");
   }
 
   try {
@@ -288,5 +300,5 @@ export default {
   logout,
   refresh,
   updateProfile,
-  updateAdditionalInfo
+  updateAdditionalInfo,
 };

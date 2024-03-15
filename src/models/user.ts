@@ -7,7 +7,10 @@ export interface IUser extends Document {
     password?: string;
     refreshTokens: string[];
     type: 'company' | 'student' | 'unknown';
-    image: string;
+    image: {
+        originalName?: string;
+        serverFilename?: string;
+    } | null,
     bio: string;
 }
 
