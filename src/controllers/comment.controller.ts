@@ -36,7 +36,6 @@ const deleteComment = async (req: Request, res: Response) => {
         const {postId, commentId} = req.params;
 
         const post = await PostModel.findById(postId);
-        if (!post) return res.status(404).send({ error: 'Post not found' });
 
         await PostModel.findByIdAndUpdate(postId, { $pull: { comments: commentId }, $inc: { commentsCount: -1 } }, { new: true });
 

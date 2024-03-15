@@ -38,8 +38,8 @@ const postData = {
 beforeAll(async () => {
   app = await initApp();
 
-  await Post.deleteMany({ "ownerId": postData.ownerId });
-  await User.deleteMany({ "email": userData.email });
+  await Post.deleteMany({ ownerId: postData.ownerId });
+  await User.deleteMany({ email: userData.email });
 
   const response = await request(app).post("/api/auth/register").send(userData);
   ownerId = response.body._id;
@@ -182,17 +182,17 @@ describe("CommentController", () => {
         .expect(401);
     });
 
-    // it("should return 500 when encountering internal server error while deleting comment", async () => {
-    //   jest.spyOn(PostModel.prototype, "findById").mockImplementation(() => {
-    //     throw new Error("Internal Server Error");
-    //   });
+    it("should return 500 when encountering internal server error while deleting comment", async () => {
+      jest.spyOn(PostModel, "findByIdAndUpdate").mockImplementation(() => {
+        throw new Error("Internal Server Error");
+      });
 
-    //   const response = await request(app)
-    //     .delete(`/api/comments/${postId}/${commentId}`)
-    //     .set("Authorization", `Bearer ${accessToken}`)
-    //     .expect(500);
+      const response = await request(app)
+        .delete(`/api/comments/${postId}/${commentId}`)
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(500);
 
-    //   expect(response.body).toHaveProperty("error", "Internal Server Error");
-    // });
+      expect(response.body).toHaveProperty("error", "Internal Server Error");
+    });
   });
 });
