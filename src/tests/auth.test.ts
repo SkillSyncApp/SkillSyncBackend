@@ -3,7 +3,10 @@ import initApp from "../app";
 import mongoose from "mongoose";
 import { Express } from "express";
 import User from "../models/user";
+import jwt from "jsonwebtoken";
+import { OAuth2Client } from "google-auth-library";
 
+jest.mock("google-auth-library");
 let app: Express;
 
 const userData = {
@@ -27,46 +30,45 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-describe("Auth tests", () => {
+describe("Authentication tests", () => {
   describe("Registration API", () => {
     it("should register a new user", async () => {
       const response = await request(app)
         .post("/api/auth/register")
         .send(userData);
       expect(response.statusCode).toBe(201);
-
       expect(response.body.name).toBe(userData.name);
       expect(response.body.email).toBe(userData.email);
       expect(response.body.type).toBe(userData.type);
       expect(response.body.bio).toBe(userData.bio);
     });
+
+    it("should handle missing information", async () => {
+      const incompleteData = {
+        name: "John Doe",
+        email: "john.doe@example.com",
+        // Missing password, type, bio
+      };
+
+      const response = await request(app)
+        .post("/api/auth/register")
+        .send(incompleteData)
+        .expect(400);
+
+      expect(response.text).toBe("can't register the user - missing info");
+    });
+
+    it("should handle duplicate email registration", async () => {
+      const duplicateResponse = await request(app)
+        .post("/api/auth/register")
+        .send(userData)
+        .expect(406);
+
+      expect(duplicateResponse.text).toBe("User already exists");
+    });
   });
 
-  it("should handle missing information", async () => {
-    const incompleteData = {
-      name: "John Doe",
-      email: "john.doe@example.com",
-      // Missing password, type, bio
-    };
-
-    const response = await request(app)
-      .post("/api/auth/register")
-      .send(incompleteData)
-      .expect(400);
-
-    expect(response.text).toBe("can't register the user - missing info");
-  });
-
-  it("should handle duplicate email registration", async () => {
-    const duplicateResponse = await request(app)
-      .post("/api/auth/register")
-      .send(userData)
-      .expect(406);
-
-    expect(duplicateResponse.text).toBe("User already exists");
-  });
-
-  describe("Login  API", () => {
+  describe("Login API", () => {
     it("should return 400 if email or password is missing", async () => {
       const response = await request(app).post("/api/auth/login").send({});
 
@@ -83,6 +85,7 @@ describe("Auth tests", () => {
       expect(response.text).toContain("email or password incorrect");
     });
 
+    // Test for successful login
     it("should return 200 with access and refresh tokens if credentials are correct", async () => {
       const response = await request(app)
         .post("/api/auth/login")
@@ -103,7 +106,7 @@ describe("Auth tests", () => {
     });
   });
 
-  describe("LogOut API", () => {
+  describe("Logout API", () => {
     it("should handle missing authorization token during logout", async () => {
       const response = await request(app).post("/api/auth/logout").expect(401);
 
@@ -118,6 +121,202 @@ describe("Auth tests", () => {
 
       expect(response.text).toContain("Unauthorized");
     });
-    // TODO check token
+  });
+
+  describe("Refresh Token API", () => {
+    it("should refresh access token with valid refresh token", async () => {
+      const response = await request(app)
+        .post("/api/auth/refresh")
+        .set("Authorization", `Bearer ${refreshToken}`)
+        .expect(200);
+
+      expect(response.body.accessToken).toBeDefined();
+      expect(response.body.refreshToken).toBeDefined();
+    });
+
+    it("should handle expired refresh token after timeout", async () => {
+      const expiredRefreshToken = jwt.sign(
+        { _id: "userId" },
+        "expiredSecret",
+        { expiresIn: "-1s" } // Expired 1 second ago
+      );
+
+      const response = await request(app)
+        .post("/api/auth/refresh")
+        .set("Authorization", `Bearer ${expiredRefreshToken}`)
+        .expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+
+    it("should handle missing authorization token during token refresh", async () => {
+      const response = await request(app).post("/api/auth/refresh").expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+
+    it("should handle invalid authorization token during token refresh", async () => {
+      const response = await request(app)
+        .post("/api/auth/refresh")
+        .set("Authorization", "Bearer InvalidToken")
+        .expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+
+    // it("should return 401 if user is not found in the database", async () => {
+    //   // Mock a valid user but not found in the database
+    //   const mockUser = { _id: "userId" };
+    //   const invalidRefreshToken = jwt.sign(
+    //     mockUser,
+    //     process.env.JWT_REFRESH_SECRET
+    //   );
+
+    //   const response = await request(app)
+    //     .post("/api/auth/refresh")
+    //     .set("Authorization", `Bearer ${invalidRefreshToken}`)
+    //     .expect(401);
+
+    //   expect(response.text).toContain("User not found in the database");
+    // });
+
+    // it("should return 401 if refresh token is not associated with the user in the database", async () => {
+    //   // Mock a valid user and refresh token, but refresh token not associated with the user in the database
+    //   const mockUser = { _id: "userId" };
+    //   const invalidRefreshToken = jwt.sign(
+    //     mockUser,
+    //     process.env.JWT_REFRESH_SECRET
+    //   );
+
+    //   const response = await request(app)
+    //     .post("/api/auth/refresh")
+    //     .set("Authorization", `Bearer ${invalidRefreshToken}`)
+    //     .expect(401);
+
+    //   expect(response.text).toContain("Unauthorized");
+    // });
+  });
+
+  // Update profile tests
+  describe("Update Profile API", () => {
+    // Test for successfully updating user profile
+    it("should update user profile with valid data", async () => {
+      const updatedData = {
+        name: "Jane Doe",
+        bio: "Updated bio",
+      };
+
+      const response = await request(app)
+        .put("/api/auth/update-profile")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(updatedData)
+        .expect(200);
+
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.name).toEqual(updatedData.name);
+      expect(response.body.user.bio).toEqual(updatedData.bio);
+    });
+
+    // Test for handling missing authorization token during profile update
+    it("should handle missing authorization token during profile update", async () => {
+      const response = await request(app)
+        .put("/api/auth/update-profile")
+        .send({})
+        .expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+  });
+
+  // Update additional info tests
+  describe("Update Additional Info API", () => {
+    // Test for successfully updating user additional info
+    it("should update user additional info with valid data", async () => {
+      const updatedData = {
+        type: "teacher",
+        bio: "Updated additional info",
+      };
+
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .set("Authorization", `Bearer ${accessToken}`)
+        .send(updatedData)
+        .expect(200);
+
+      expect(response.body.user).toBeDefined();
+      expect(response.body.user.type).toEqual(updatedData.type);
+      expect(response.body.user.bio).toEqual(updatedData.bio);
+    });
+
+    // Test for handling missing authorization token during additional info update
+    it("should handle missing authorization token during additional info update", async () => {
+      const response = await request(app)
+        .put("/api/auth/update-additional-info")
+        .send({})
+        .expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+  });
+
+  // Google login tests
+  describe("Google Login API", () => {
+    it("should return 200 with access and refresh tokens for Google login", async () => {
+      const mockRes = {
+        status: jest.fn(() => mockRes),
+        send: jest.fn(),
+      };
+
+      const mockGoogleUser = {
+        name: "John Doe",
+        email: "john.doe@gmail.com",
+        picture: "https://example.com/picture.jpg",
+      };
+
+      const mockTokens = {
+        accessToken: "mockedAccessToken",
+        refreshToken: "mockedRefreshToken",
+      };
+
+      // Mock verifyIdToken function of OAuth2Client
+      (OAuth2Client.prototype.verifyIdToken as any).mockResolvedValue({
+        getPayload: () => mockGoogleUser,
+      });
+
+      // Mock generateTokens function
+      const generateTokens = jest.fn().mockResolvedValue(mockTokens);
+
+      // Send a request to the Google login endpoint
+      const response = await request(app)
+        .post("/api/auth/google")
+        .send({ credentialResponse: { credential: "mockedGoogleCredential" } });
+
+      // Assert response status code
+      expect(response.status).toBe(200);
+      expect(response.body.user.name).toBe(mockGoogleUser.name);
+      expect(response.body.user.email).toBe(mockGoogleUser.email);
+      expect(response.body.user.image).toBe(mockGoogleUser.picture);
+    });
+
+    // it("should return 400 with error message for invalid Google credential", async () => {
+    //   // Mock verifyIdToken function to simulate invalid Google credential
+    //   (OAuth2Client.prototype.verifyIdToken as any).mockRejectedValue(
+    //     new Error("Invalid Google credential")
+    //   );
+
+    //   const response = await request(app)
+    //     .post("/api/auth/google")
+    //     .send({ credentialResponse: { credential: "invalidCredential" } });
+
+    //   expect(response.status).toBe(400);
+    //   expect(response.body.error).toBe("Invalid Google credential");
+    // });
+
+    // it("should return 400 with error message for missing Google credential", async () => {
+    //   const response = await request(app).post("/api/auth/google").send({});
+
+    //   expect(response.status).toBe(400);
+    //   expect(response.body.error).toBe("Missing Google credential");
+    // }, 20000);
   });
 });

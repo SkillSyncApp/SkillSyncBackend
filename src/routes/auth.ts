@@ -99,7 +99,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /register:
+ * /api/auth/register:
  *   post:
  *     summary: Register a new user
  *     tags: [Auth]
@@ -127,7 +127,7 @@ router.post("/google", authController.logInGoogle);
 
 /**
  * @swagger
- * /login:
+ * /api/auth/login:
  *   post:
  *     summary: Log in an existing user
  *     tags: [Auth]
@@ -153,7 +153,7 @@ router.post("/login", authController.login);
 
 /**
  * @swagger
- * /auth/logout:
+ * /api/auth/logout:
  *   post:
  *     summary: Logout a user
  *     tags: [Auth]
@@ -168,7 +168,7 @@ router.post("/logout", authController.logout);
 
 /**
  * @swagger
- * /auth/refresh:
+ * /api/auth/refresh:
  *   get:
  *     summary: Refresh access token
  *     tags: [Auth]
@@ -185,11 +185,11 @@ router.post("/logout", authController.logout);
  *       401:
  *         description: Unauthorized - Invalid or expired refresh token.
  */
-router.get("/refresh", authController.refresh);
+router.post("/refresh", authController.refresh);
 
 /**
  * @swagger
- * /update-profile:
+ * /api/auth/update-profile:
  *   put:
  *     summary: Update user profile
  *     tags: [Auth]
@@ -224,7 +224,7 @@ router.put("/update-profile", authMiddleware, authController.updateProfile);
 
 /**
  * @swagger
- * /update-additional-info:
+ * /api/auth/update-additional-info:
  *   put:
  *     summary: Update user additional information
  *     tags: [Auth]
