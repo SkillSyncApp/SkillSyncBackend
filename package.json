@@ -5,6 +5,7 @@
   "main": "src/server.js",
   "scripts": {
     "test": "tsc && jest --coverage --detectOpenHandles --forceExit",
+    "authTest": "tsc && jest --coverage --detectOpenHandles --forceExit src/tests/auth.test.ts",
     "start": "tsc && node ./dist/server.js",
     "dev": "tsnd --respawn --files ./src/server.ts",
     "tsc": "tsc",

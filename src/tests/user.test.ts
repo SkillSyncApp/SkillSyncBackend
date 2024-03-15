@@ -41,7 +41,7 @@ describe("User Endpoints", () => {
 
     // Close the MongoDB connection
     await mongoose.connection.close();
-  });
+  }, 10000)
 
   describe("GET /api/users/:id", () => {
     test("should get user details by ID", async () => {

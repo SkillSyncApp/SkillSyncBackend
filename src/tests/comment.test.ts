@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import CommentModel from "../models/comment";
 import PostModel from "../models/post";
 import initApp from "../app";
+import Post from "../models/post";
+import User from "../models/user";
 
 const generateObjectId = () => new mongoose.Types.ObjectId();
 
@@ -24,30 +26,51 @@ const userData = {
   bio: "Sample bio",
 };
 
+const postData = {
+  _id: new mongoose.Types.ObjectId(),
+  ownerId: userData._id,
+  title: "Test Post",
+  content: "This is a test post.",
+  image: null,
+  comments: [],
+};
+
 beforeAll(async () => {
   app = await initApp();
 
+  await Post.deleteMany({ "ownerId": postData.ownerId });
+  await User.deleteMany({ "email": userData.email });
+
   const response = await request(app).post("/api/auth/register").send(userData);
   ownerId = response.body._id;
+
   const response2 = await request(app)
     .post("/api/auth/login")
     .send({ email: "john.doe@example.com", password: "password123" });
+
+  const registerResponse = await request(app)
+    .post("/api/auth/register")
+    .send(userData);
+  ownerId = registerResponse.body._id;
   accessToken = response2.body.accessToken;
 
-  const post = await PostModel.create({
-    ownerId: generateObjectId(),
-    title: "Test Post",
-    content: "This is a test post.",
-    image: "test-image.jpg",
-    comments: [],
+  const loginResponse = await request(app).post("/api/auth/login").send({
+    email: "john.doe@example.com",
+    password: "password123",
   });
+  accessToken = loginResponse.body.accessToken;
 
-  postId = post._id.toString();
+  const postResponse = await request(app)
+  .post(`/api/posts/`)
+  .set("Authorization", `Bearer ${accessToken}`)
+  .send(postData)
+
+  postId = postResponse.body._id
 });
 
 afterAll(async () => {
-  await CommentModel.findByIdAndDelete(commentId);
   await PostModel.findByIdAndDelete(postId);
+  await CommentModel.findByIdAndDelete(commentId);
   await mongoose.connection.close();
 });
 
@@ -93,6 +116,24 @@ describe("CommentController", () => {
         .send({ userId, content })
         .expect(401);
     });
+
+    it("should return 500 when encountering internal server error while adding comment", async () => {
+      // Mocking the CommentModel constructor to throw an error when called
+      jest.spyOn(CommentModel.prototype, "save").mockImplementation(() => {
+        throw new Error("Internal Server Error");
+      });
+
+      const userId = generateObjectId();
+      const content = "This is a test comment.";
+
+      const response = await request(app)
+        .post(`/api/comments/${postId}`)
+        .send({ userId, content })
+        .set("Authorization", `Bearer ${accessToken}`)
+        .expect(500);
+
+      expect(response.body).toHaveProperty("error", "Internal Server Error");
+    });
   });
 
   describe("deleteComment", () => {
@@ -108,7 +149,7 @@ describe("CommentController", () => {
       );
     });
 
-    it("should return 404 when deleting non-existing comment", async () => {
+    it("should return 404 when deleting non-existing post", async () => {
       const nonExistingCommentId = generateObjectId();
 
       const response = await request(app)
@@ -140,5 +181,18 @@ describe("CommentController", () => {
         .set("Authorization", `Bearer ${otherUserResponse.body.accessToken}`)
         .expect(401);
     });
+
+    // it("should return 500 when encountering internal server error while deleting comment", async () => {
+    //   jest.spyOn(PostModel.prototype, "findById").mockImplementation(() => {
+    //     throw new Error("Internal Server Error");
+    //   });
+
+    //   const response = await request(app)
+    //     .delete(`/api/comments/${postId}/${commentId}`)
+    //     .set("Authorization", `Bearer ${accessToken}`)
+    //     .expect(500);
+
+    //   expect(response.body).toHaveProperty("error", "Internal Server Error");
+    // });
   });
 });
