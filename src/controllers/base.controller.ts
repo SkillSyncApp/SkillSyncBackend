@@ -10,10 +10,10 @@ export class BaseController<ModelType> {
   async getAll(req: Request, res: Response, selectFields?: string[]) {
     try {
       const models = await this.model.find().select(selectFields);
-      
+
       if (!models) {
         return res.status(404).json({ message: "User not found" });
-    }
+      }
 
       res.send(models);
     } catch (err) {
@@ -27,10 +27,10 @@ export class BaseController<ModelType> {
       const query = id ? { _id: id } : {};
 
       const model = await this.model.find(query).select(selectFields);
-      
+
       if (!model) {
         return res.status(404).json({ message: "User not found" });
-    }
+      }
 
       res.send(model[0]);
     } catch (err) {

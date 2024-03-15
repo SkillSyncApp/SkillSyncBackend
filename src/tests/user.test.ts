@@ -29,7 +29,9 @@ describe("User Endpoints", () => {
   beforeAll(async () => {
     app = await initApp();
 
-    await User.deleteMany({ email: { $in: [userData.email, userData2.email] } });
+    await User.deleteMany({
+      email: { $in: [userData.email, userData2.email] },
+    });
 
     const response = await request(app)
       .post("/api/auth/register")
@@ -42,8 +44,8 @@ describe("User Endpoints", () => {
     expect(response.statusCode).toBe(201);
 
     const authResponse = await request(app)
-    .post("/api/auth/login")
-    .send({ email: userData.email, password: userData.password });
+      .post("/api/auth/login")
+      .send({ email: userData.email, password: userData.password });
 
     await request(app)
       .post("/api/auth/login")
@@ -79,8 +81,8 @@ describe("User Endpoints", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toBeInstanceOf(Array);
-    
-    response.body.forEach(user => {
+
+    response.body.forEach((user) => {
       expect(user).toHaveProperty("name");
       expect(user).toHaveProperty("email");
     });

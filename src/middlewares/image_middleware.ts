@@ -6,17 +6,18 @@ const maxSize = 10 * 1024 * 1024; // 10MB
 const upload = multer({
   storage: multer.diskStorage({
     destination: function (req: Request, file, cb) {
-      cb(null, 'public/');
+      cb(null, "public/");
     },
     filename: function (req: Request, file, cb) {
-      const ext = file.originalname.split('.')
+      const ext = file.originalname
+        .split(".")
         .filter(Boolean)
         .slice(1)
-        .join('.');
+        .join(".");
       cb(null, Date.now() + "." + ext);
-    }
+    },
   }),
-  limits: { fileSize: maxSize }
+  limits: { fileSize: maxSize },
 });
 
 export default upload;

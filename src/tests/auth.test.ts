@@ -34,8 +34,8 @@ describe("Authentication tests", () => {
   describe("Registration API", () => {
     it("should handle error during user registration", async () => {
       // Mocking the User.create method to throw an error
-      jest.spyOn(User, 'create').mockImplementationOnce(() => {
-        throw new Error('Mocked user creation error');
+      jest.spyOn(User, "create").mockImplementationOnce(() => {
+        throw new Error("Mocked user creation error");
       });
 
       const response = await request(app)
@@ -115,6 +115,7 @@ describe("Authentication tests", () => {
         type: "student",
         name: "John Doe",
         email: "john.doe@example.com",
+        image: {},
         bio: "Sample bio",
       });
     });
@@ -177,38 +178,6 @@ describe("Authentication tests", () => {
 
       expect(response.text).toContain("Unauthorized");
     });
-
-    // it("should return 401 if user is not found in the database", async () => {
-    //   // Mock a valid user but not found in the database
-    //   const mockUser = { _id: "userId" };
-    //   const invalidRefreshToken = jwt.sign(
-    //     mockUser,
-    //     process.env.JWT_REFRESH_SECRET
-    //   );
-
-    //   const response = await request(app)
-    //     .post("/api/auth/refresh")
-    //     .set("Authorization", `Bearer ${invalidRefreshToken}`)
-    //     .expect(401);
-
-    //   expect(response.text).toContain("User not found in the database");
-    // });
-
-    // it("should return 401 if refresh token is not associated with the user in the database", async () => {
-    //   // Mock a valid user and refresh token, but refresh token not associated with the user in the database
-    //   const mockUser = { _id: "userId" };
-    //   const invalidRefreshToken = jwt.sign(
-    //     mockUser,
-    //     process.env.JWT_REFRESH_SECRET
-    //   );
-
-    //   const response = await request(app)
-    //     .post("/api/auth/refresh")
-    //     .set("Authorization", `Bearer ${invalidRefreshToken}`)
-    //     .expect(401);
-
-    //   expect(response.text).toContain("Unauthorized");
-    // });
   });
 
   // Update profile tests
@@ -277,82 +246,88 @@ describe("Authentication tests", () => {
         // Missing bio field
         type: "teacher",
       };
-  
+
       const response = await request(app)
         .put("/api/auth/update-additional-info")
         .set("Authorization", `Bearer ${accessToken}`)
         .send(requestData)
         .expect(400);
-  
-      expect(response.text).toBe("Can't update the user additional info - missing info");
+
+      expect(response.text).toBe(
+        "Can't update the user additional info - missing info"
+      );
     });
-  
+
     // Test for missing type field
     it("should return 400 if type field is missing", async () => {
       const requestData = {
         bio: "Updated additional info",
         // Missing type field
       };
-  
+
       const response = await request(app)
         .put("/api/auth/update-additional-info")
         .set("Authorization", `Bearer ${accessToken}`)
         .send(requestData)
         .expect(400);
-  
-      expect(response.text).toBe("Can't update the user additional info - missing info");
+
+      expect(response.text).toBe(
+        "Can't update the user additional info - missing info"
+      );
     });
-  
+
     // Test for missing both bio and type fields
     it("should return 400 if both bio and type fields are missing", async () => {
       const requestData = {
         // Missing both bio and type fields
       };
-  
+
       const response = await request(app)
         .put("/api/auth/update-additional-info")
         .set("Authorization", `Bearer ${accessToken}`)
         .send(requestData)
         .expect(400);
-  
-      expect(response.text).toBe("Can't update the user additional info - missing info");
+
+      expect(response.text).toBe(
+        "Can't update the user additional info - missing info"
+      );
     });
 
     it("should return 404 if user is not found", async () => {
       // Mocking the User.findByIdAndUpdate method to return null
-      jest.spyOn(User, 'findByIdAndUpdate').mockResolvedValueOnce(null);
-  
+      jest.spyOn(User, "findByIdAndUpdate").mockResolvedValueOnce(null);
+
       const updatedData = {
         type: "teacher",
         bio: "Updated additional info",
       };
-  
+
       const response = await request(app)
         .put("/api/auth/update-additional-info")
         .set("Authorization", `Bearer ${accessToken}`)
         .send(updatedData)
         .expect(404);
-  
+
       expect(response.text).toBe("User not found");
     });
-  
+
     it("should handle errors during update", async () => {
       // Mocking the User.findByIdAndUpdate method to throw an error
-      jest.spyOn(User, 'findByIdAndUpdate').mockImplementationOnce(() => {
-        throw new Error('Mocked update error');
+      jest.spyOn(User, "findByIdAndUpdate").mockImplementationOnce(() => {
+        throw new Error("Mocked update error");
       });
-  
+
       const updatedData = {
         type: "teacher",
         bio: "Updated additional info",
       };
-  
+
       const response = await request(app)
         .put("/api/auth/update-additional-info")
         .set("Authorization", `Bearer ${accessToken}`)
         .send(updatedData)
         .expect(400);
-  
+
       expect(response.text).toBe("Mocked update error");
     });
   });
@@ -367,12 +342,7 @@ describe("Authentication tests", () => {
       const mockGoogleUser = {
         name: "John Doe",
         email: "john.doe@gmail.com",
-        picture: "https://example.com/picture.jpg",
-      };
-
-      const mockTokens = {
-        accessToken: "mockedAccessToken",
-        refreshToken: "mockedRefreshToken",
+        picture:  "google John Doe.png"
       };
 
       // Mock verifyIdToken function of OAuth2Client
@@ -380,19 +350,17 @@ describe("Authentication tests", () => {
         getPayload: () => mockGoogleUser,
       });
 
-      // Mock generateTokens function
-      const generateTokens = jest.fn().mockResolvedValue(mockTokens);
-
       // Send a request to the Google login endpoint
       const response = await request(app)
         .post("/api/auth/google")
         .send({ credentialResponse: { credential: "mockedGoogleCredential" } });
 
-      // Assert response status code
       expect(response.status).toBe(200);
       expect(response.body.user.name).toBe(mockGoogleUser.name);
       expect(response.body.user.email).toBe(mockGoogleUser.email);
-      expect(response.body.user.image).toBe(mockGoogleUser.picture);
+      expect(response.body.user.image.originalName).toBe(mockGoogleUser.picture);
+      expect(response.body.user.image.serverFilename).toBe("google " + mockGoogleUser.name + ".png");
+      
     });
 
     it("should return 400 for invalid Google credential", async () => {
@@ -400,15 +368,17 @@ describe("Authentication tests", () => {
         status: jest.fn(() => mockRes),
         send: jest.fn(),
       };
-  
+
       // Mock verifyIdToken function of OAuth2Client to throw an error
-      (OAuth2Client.prototype.verifyIdToken as any).mockRejectedValue(new Error("Invalid token"));
-  
+      (OAuth2Client.prototype.verifyIdToken as any).mockRejectedValue(
+        new Error("Invalid token")
+      );
+
       // Send a request to the Google login endpoint
       const response = await request(app)
         .post("/api/auth/google")
         .send({ credentialResponse: { credential: "mockedGoogleCredential" } });
-  
+
       // Assert response status code and error message
       expect(response.status).toBe(400);
       expect(response.text).toBe("Invalid Google credential");
