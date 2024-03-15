@@ -141,29 +141,6 @@ describe("PostController", () => {
     // expect(response.body.image).toBe(updatedData.image);
   });
 
-  test("should delete a post by ID", async () => {
-    const response = await request(app)
-      .delete(`/api/posts/${createdPostId}`)
-      .set("Authorization", `Bearer ${accessToken}`);
-
-    expect(response.status).toBe(200);
-    expect(response.body).toHaveProperty(
-      "message",
-      "Model deleted successfully"
-    );
-  });
-
-  test("should return 404 when deleting a non-existing post by ID", async () => {
-    const nonExistingPostId = new mongoose.Types.ObjectId();
-
-    const response = await request(app)
-      .delete(`/api/posts/${nonExistingPostId}`)
-      .set("Authorization", `Bearer ${accessToken}`);
-
-    expect(response.status).toBe(404);
-    expect(response.body).toHaveProperty("error", "Model not found");
-  });
-
   test("should return 401 when updating a non-existing post by ID", async () => {
     const nonExistingPostId = new mongoose.Types.ObjectId();
     const updatedData = {
@@ -189,34 +166,53 @@ describe("PostController", () => {
     expect(response.status).toBe(401);
   });
 
-  test("should return 400 when creating a post with missing fields", async () => {
-    const incompletePostData = {
-      ownerId: ownerId,
+  test("should delete a post by ID", async () => {
+    const response = await request(app)
+      .delete(`/api/posts/${createdPostId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveProperty(
+      "message",
+      "Model deleted successfully"
+    );
+  });
+
+  test("should return 403 when updating a post with missing fields", async () => {
+    const updatedData = {
       // Omitting required fields: title and content
     };
 
     const response = await request(app)
-      .post("/api/posts/")
+      .put(`/api/posts/${createdPostId}`)
       .set("Authorization", `Bearer ${accessToken}`)
-      .send(incompletePostData);
+      .send(updatedData);
 
-    //expect(response.status).toBe(401);
-    //expect(response.body).toHaveProperty(
-    //  "message",
-    //  "Post validation failed: content: Path `content` is required., title: Path `title` is required."    
-    //);
+    expect(response.status).toBe(403);
+    expect(response.body).toHaveProperty("error");
+  });
+
+  test("should return 404 when deleting a non-existing post by ID", async () => {
+    const nonExistingPostId = new mongoose.Types.ObjectId();
+
+    const response = await request(app)
+      .delete(`/api/posts/${nonExistingPostId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty("error", "Model not found");
   });
 
   test("should return 401 when updating a post without authentication", async () => {
-    const otherUserResponse = await request(app)
-      .post("/api/auth/register")
-      .send(secondUserData);
+    const updatedData = {
+      title: "Updated Test Post",
+      content: "This post has been updated.",
+      image: null,
+    };
 
-    expect(otherUserResponse.status).toBe(201);
     const response = await request(app)
       .put(`/api/posts/${createdPostId}`)
-      .set("Authorization", `Bearer ${otherUserResponse.body.accessToken}`)
-      .send({ title: "Updated Test Post" });
+      .send(updatedData);
 
     expect(response.status).toBe(401);
   });

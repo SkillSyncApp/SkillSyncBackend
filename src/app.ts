@@ -18,7 +18,7 @@ const initApp = async (): Promise<Express> => {
 
     app.use(cors());
     app.use(express.json());
-    app.use(express.urlencoded({ extended: true }));
+    app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
     // Add APIs
     app.use("/api", BaseRouter)

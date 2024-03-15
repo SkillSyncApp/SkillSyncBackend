@@ -61,11 +61,11 @@ beforeAll(async () => {
   accessToken = loginResponse.body.accessToken;
 
   const postResponse = await request(app)
-  .post(`/api/posts/`)
-  .set("Authorization", `Bearer ${accessToken}`)
-  .send(postData)
+    .post(`/api/posts/`)
+    .set("Authorization", `Bearer ${accessToken}`)
+    .send(postData);
 
-  postId = postResponse.body._id
+  postId = postResponse.body._id;
 });
 
 afterAll(async () => {
