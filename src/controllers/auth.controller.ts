@@ -56,7 +56,7 @@ const logInGoogle = async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
-    return res.status(400).send("Invalid Google credential");
+    return res.status(500).send("Invalid Google credential");
   }
 };
 
@@ -82,7 +82,7 @@ const register = async (req: Request, res: Response) => {
     });
     return res.status(201).send(rs2);
   } catch (err) {
-    return res.status(400).send(err.message);
+    return res.status(500).send(err.message);
   }
 };
 
@@ -134,7 +134,7 @@ const login = async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
-    return res.status(400).send(err.message);
+    return res.status(500).send(err.message);
   }
 };
 
@@ -168,7 +168,7 @@ const logout = async (req: Request, res: Response) => {
           return res.status(200).send("Logout successful");
         }
       } catch (err) {
-        return res.sendStatus(401);
+        return res.status(500).send(err.message);
       }
     }
   );
@@ -261,7 +261,7 @@ const updateProfile = async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
-    return res.status(400).send(err.message);
+    return res.status(500).send(err.message);
   }
 };
 
@@ -298,7 +298,7 @@ const updateAdditionalInfo = async (req: Request, res: Response) => {
       },
     });
   } catch (err) {
-    return res.status(400).send(err.message);
+    return res.status(500).send(err.message);
   }
 };
 export default {

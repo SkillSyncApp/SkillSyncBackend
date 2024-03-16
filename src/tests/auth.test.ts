@@ -32,7 +32,7 @@ afterAll(async () => {
 
 describe("Authentication tests", () => {
   describe("Registration API", () => {
-    it("should handle error during user registration", async () => {
+    it("should return 500 given error during user registration", async () => {
       // Mocking the User.create method to throw an error
       jest.spyOn(User, "create").mockImplementationOnce(() => {
         throw new Error("Mocked user creation error");
@@ -41,7 +41,7 @@ describe("Authentication tests", () => {
       const response = await request(app)
         .post("/api/auth/register")
         .send(userData)
-        .expect(400); // Expecting 400 status code for the caught error
+        .expect(500);
 
       expect(response.text).toContain("Mocked user creation error");
     });
@@ -244,7 +244,7 @@ describe("Authentication tests", () => {
     it("should return 400 if bio field is missing", async () => {
       const requestData = {
         // Missing bio field
-        type: "teacher",
+        type: "student",
       };
 
       const response = await request(app)
@@ -311,14 +311,14 @@ describe("Authentication tests", () => {
       expect(response.text).toBe("User not found");
     });
 
-    it("should handle errors during update", async () => {
+    it("should return 500 given errors during update", async () => {
       // Mocking the User.findByIdAndUpdate method to throw an error
       jest.spyOn(User, "findByIdAndUpdate").mockImplementationOnce(() => {
         throw new Error("Mocked update error");
       });
 
       const updatedData = {
-        type: "teacher",
+        type: "student",
         bio: "Updated additional info",
       };
 
@@ -326,7 +326,7 @@ describe("Authentication tests", () => {
         .put("/api/auth/update-additional-info")
         .set("Authorization", `Bearer ${accessToken}`)
         .send(updatedData)
-        .expect(400);
+        .expect(500);
 
       expect(response.text).toBe("Mocked update error");
     });
@@ -363,7 +363,7 @@ describe("Authentication tests", () => {
       
     });
 
-    it("should return 400 for invalid Google credential", async () => {
+    it("should return 500 for invalid Google credential", async () => {
       const mockRes = {
         status: jest.fn(() => mockRes),
         send: jest.fn(),
@@ -380,7 +380,7 @@ describe("Authentication tests", () => {
         .send({ credentialResponse: { credential: "mockedGoogleCredential" } });
 
       // Assert response status code and error message
-      expect(response.status).toBe(400);
+      expect(response.status).toBe(500);
       expect(response.text).toBe("Invalid Google credential");
     });
   });

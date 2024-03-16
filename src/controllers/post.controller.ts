@@ -91,7 +91,7 @@ export class PostController extends BaseController<IPost> {
 
       res.status(200).json(commentsWithUsers);
     } catch (err) {
-      res.status(500).json({ error: "Error retrieving comments" });
+      res.status(500).json({ error: err.message }); 
     }
   }
 

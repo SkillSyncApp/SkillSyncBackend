@@ -17,7 +17,7 @@ const userData = {
   password: "password123",
   refreshTokens: [],
   type: "student",
-  image: null,
+  image: {},
   bio: "Sample bio",
 };
 
@@ -35,7 +35,7 @@ const postData = {
   ownerId: userData._id,
   title: "Test Post",
   content: "This is a test post.",
-  image: null,
+  image: {},
   comments: [],
 };
 
@@ -188,7 +188,7 @@ describe("PostController", () => {
       ownerId: userData._id,
       title: "Updated Test Post",
       content: "This post has been updated.",
-      image: null,
+      image: {},
       comments: [],
     };
 
@@ -248,7 +248,7 @@ describe("PostController", () => {
     const updatedData = {
       title: "Updated Test Post",
       content: "This post has been updated.",
-      image: null,
+      image: {},
     };
 
     const response = await request(app)
@@ -256,5 +256,16 @@ describe("PostController", () => {
       .send(updatedData);
 
     expect(response.status).toBe(401);
+  });
+
+  test("should return 404 if post is not found", async () => {
+    const nonExistingPostId = new mongoose.Types.ObjectId();
+
+    const response = await request(app)
+      .get(`/api/posts/comments/${nonExistingPostId}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(404);
+    expect(response.body).toEqual({ error: "Post not found" });
   });
 });

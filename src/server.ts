@@ -76,13 +76,20 @@ initApp().then((app) => {
     console.log("[SOCKET LOG]: user connected to socket stream");
 
     socket.on("joinRoom", async (conversationId) => {
-      const canJoinRoom = await isUserPartOfConversation(conversationId, socket.data.userId);
+      const canJoinRoom = await isUserPartOfConversation(
+        conversationId,
+        socket.data.userId
+      );
 
       if (canJoinRoom) {
-        console.log(`[SOCKET LOG]: user has connected to room ${conversationId}`);
+        console.log(
+          `[SOCKET LOG]: user has connected to room ${conversationId}`
+        );
         socket.join(conversationId);
       } else {
-        console.log(`[SOCKET LOG ERROR]: user has no access to connect to room ${conversationId}`);
+        console.log(
+          `[SOCKET LOG ERROR]: user has no access to connect to room ${conversationId}`
+        );
       }
     });
 
