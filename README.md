@@ -50,4 +50,3 @@ The API endpoints and their functionalities are documented in the [API Documenta
 ## Contributing
 
 Contributions are welcome! If you find any bugs or have suggestions for improvements, please open an issue or submit a pull request.
-
