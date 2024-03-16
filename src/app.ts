@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import express, { Express } from "express";
 import mongoose from "mongoose";
 import BaseRouter from "./routes/index";
+import path from 'path';
 
 dotenv.config();
 
@@ -23,6 +24,9 @@ const initApp = async (): Promise<Express> => {
     // Add APIs
     app.use("/api", BaseRouter);
     app.use("/public", express.static("public"));
+    app.get('*', (req, res) => {
+      res.sendFile(path.join(__dirname, "../client/build/index.html"));
+    })
 
     mongoose.connection.once("open", () =>
       console.log("Connected to Database")
