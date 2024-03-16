@@ -17,7 +17,6 @@ const userData = {
   password: "password123",
   refreshTokens: [],
   type: "student",
-  image: {},
   bio: "Sample bio",
 };
 
@@ -35,7 +34,6 @@ const postData = {
   ownerId: userData._id,
   title: "Test Post",
   content: "This is a test post.",
-  image: {},
   comments: [],
 };
 
@@ -167,7 +165,6 @@ describe("PostController", () => {
     const updatedData = {
       title: "Updated Test Post",
       content: "This post has been updated.",
-      image: null,
     };
 
     const response = await request(app)
@@ -188,7 +185,6 @@ describe("PostController", () => {
       ownerId: userData._id,
       title: "Updated Test Post",
       content: "This post has been updated.",
-      image: {},
       comments: [],
     };
 
@@ -248,7 +244,6 @@ describe("PostController", () => {
     const updatedData = {
       title: "Updated Test Post",
       content: "This post has been updated.",
-      image: {},
     };
 
     const response = await request(app)
