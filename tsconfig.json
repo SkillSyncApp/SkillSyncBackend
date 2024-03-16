@@ -6,7 +6,7 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "outDir": "./dist",
-    "types": ["jest", "@types/jest", "node"]
+    "types": ["@types/jest"]
   },
   "lib": ["es2015"]
 }
