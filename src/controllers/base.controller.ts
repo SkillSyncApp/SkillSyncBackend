@@ -12,7 +12,7 @@ export class BaseController<ModelType> {
       const models = await this.model.find().select(selectFields);
 
       if (!models) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Model not found" });
       }
 
       res.send(models);
@@ -29,7 +29,7 @@ export class BaseController<ModelType> {
       const model = await this.model.find(query).select(selectFields);
 
       if (!model) {
-        return res.status(404).json({ message: "User not found" });
+        return res.status(404).json({ message: "Model not found" });
       }
 
       res.send(model[0]);

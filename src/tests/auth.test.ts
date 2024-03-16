@@ -298,7 +298,7 @@ describe("Authentication tests", () => {
       jest.spyOn(User, "findByIdAndUpdate").mockResolvedValueOnce(null);
 
       const updatedData = {
-        type: "teacher",
+        type: "student",
         bio: "Updated additional info",
       };
 
