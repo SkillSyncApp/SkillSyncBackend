@@ -4,6 +4,7 @@ import mongoose from "mongoose";
 import { Express } from "express";
 import Post from "../models/post";
 import User from "../models/user";
+import { BaseController } from "../controllers/base.controller";
 
 let app: Express;
 let accessToken: string;
@@ -44,8 +45,8 @@ beforeAll(async () => {
   app = await initApp();
 
   // Delete only the documents relevant to the current test
-  await Post.deleteMany({ "ownerId": postData.ownerId });
-  await User.deleteMany({ "email": userData.email });
+  await Post.deleteMany({ ownerId: postData.ownerId });
+  await User.deleteMany({ email: userData.email });
 
   const registerResponse = await request(app)
     .post("/api/auth/register")
@@ -61,7 +62,9 @@ beforeAll(async () => {
 
 afterAll(async () => {
   await Post.deleteMany({ ownerId: postData.ownerId });
-  await User.deleteMany({ email: { $in: [userData.email, secondUserData.email] } });
+  await User.deleteMany({
+    email: { $in: [userData.email, secondUserData.email] },
+  });
 
   // Close the MongoDB connection
   await mongoose.connection.close();
@@ -111,6 +114,28 @@ describe("PostController", () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
+  test("should return 500 when encountering an internal server error during post creation", async () => {
+    const originalCreate = BaseController.prototype.create;
+    jest
+      .spyOn(BaseController.prototype, "create")
+      .mockImplementationOnce(async (req, res) => {
+        throw new Error("Mocked user creation error");
+      });
+
+    const response = await request(app)
+      .post("/api/posts/")
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(postData);
+
+    expect(response.status).toBe(500);
+    expect(response.body).toHaveProperty(
+      "message",
+      "Mocked user creation error"
+    );
+
+    BaseController.prototype.create = originalCreate;
+  });
+
   test("should get comments by post id", async () => {
     const response = await request(app)
       .get(`/api/posts/comments/${createdPostId}`)
@@ -118,6 +143,24 @@ describe("PostController", () => {
 
     expect(response.status).toBe(200);
     expect(response.body).toBeInstanceOf(Array);
+  });
+
+  test("should return 400 for invalid ownerId", async () => {
+    const response = await request(app)
+      .get("/api/posts/invalidOwnerId")
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "ownerId isn't valid" });
+  });
+
+  test("should return 400 for invalid postId", async () => {
+    const response = await request(app)
+      .get("/api/posts/comments/invalidPostId")
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(response.status).toBe(400);
+    expect(response.body).toEqual({ error: "postId isn't valid" });
   });
 
   test("should update a post by ID", async () => {

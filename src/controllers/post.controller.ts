@@ -55,17 +55,12 @@ export class PostController extends BaseController<IPost> {
       const ownerId = req.params.ownerId;
 
       if (!mongoose.Types.ObjectId.isValid(ownerId)) {
-        return res.status(404).send({ error: "ownerId isn't valid" });
+        return res.status(400).send({ error: "ownerId isn't valid" });
       }
 
-      const posts = await this.getPosts({
-        ownerId: new mongoose.mongo.ObjectId(ownerId),
-      });
-      const postsWithOwners = await this.getOwners(posts);
-
-      if (!postsWithOwners) {
-        return res.status(500).json({ message: "Failed to process posts" });
-      }
+      const postsFilter = { ownerId: new mongoose.Types.ObjectId(ownerId) };
+      const postsWithCommentsCount = await this.getPosts(postsFilter);
+      const postsWithOwners = await this.getOwners(postsWithCommentsCount);
 
       res.status(200).send(postsWithOwners);
     } catch (err) {
@@ -76,11 +71,15 @@ export class PostController extends BaseController<IPost> {
   async getCommentsByPostId(req: Request, res: Response) {
     try {
       const postId = req.params.id;
-      if (!postId) throw new Error("Invalid Post Id");
+
+      if (!mongoose.Types.ObjectId.isValid(postId)) {
+        return res.status(400).send({ error: "postId isn't valid" });
+      }
 
       const postWithComments = await PostModel.findById(postId).populate(
         "comments"
       );
+
       if (!postWithComments)
         return res.status(404).json({ error: "Post not found" });
 
@@ -98,20 +97,7 @@ export class PostController extends BaseController<IPost> {
 
   async update(req: Request, res: Response) {
     try {
-      const postId = req.params.id;
-      const { title, content, image } = req.body;
-
-      const updatedPost = await this.model.findByIdAndUpdate(
-        postId,
-        { title, content, image },
-        { new: true }
-      );
-
-      if (!updatedPost) {
-        return res.status(404).json({ error: "Post not found" });
-      }
-
-      res.status(200).json(updatedPost);
+      return await super.putById(req, res);
     } catch (error) {
       res.status(500).json({ error: "Internal Server Error" });
     }
