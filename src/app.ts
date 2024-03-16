@@ -24,8 +24,8 @@ const initApp = async (): Promise<Express> => {
     // Add APIs
     app.use("/api", BaseRouter);
     app.use("/public", express.static("public"));
-    app.get('*', (req, res) => {
-      res.sendFile(path.join(__dirname, "../client/index.html"));
+    app.get('*', (_, res) => {
+      res.sendFile('client/index.html', { root: "public" });
     })
 
     mongoose.connection.once("open", () =>
