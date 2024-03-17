@@ -117,7 +117,7 @@ describe("PostController", () => {
     jest
       .spyOn(BaseController.prototype, "create")
       .mockImplementationOnce(async (req, res) => {
-        throw new Error("Mocked user creation error");
+        throw new Error("Mocked post creation error");
       });
 
     const response = await request(app)
@@ -128,7 +128,7 @@ describe("PostController", () => {
     expect(response.status).toBe(500);
     expect(response.body).toHaveProperty(
       "message",
-      "Mocked user creation error"
+      "Mocked post creation error"
     );
 
     BaseController.prototype.create = originalCreate;
@@ -179,7 +179,7 @@ describe("PostController", () => {
     // expect(response.body.image).toBe(updatedData.image);
   });
 
-  test("should return 401 when updating a non-existing post by ID", async () => {
+  test("should return 404 when updating a non-existing post by ID", async () => {
     const nonExistingPostId = new mongoose.Types.ObjectId();
     const updatedData = {
       ownerId: userData._id,
@@ -193,8 +193,8 @@ describe("PostController", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send(updatedData);
 
-    expect(response.status).toBe(403);
-    expect(response.body).toHaveProperty("error", "Forbidden");
+    expect(response.status).toBe(404);
+    expect(response.body).toHaveProperty("error", "Model not found");
   });
 
   test("should return 401 when creating a post without authentication", async () => {
@@ -215,7 +215,7 @@ describe("PostController", () => {
     );
   });
 
-  test("should return 403 when updating a post with missing fields", async () => {
+  test("should return 404 when updating a post with missing fields", async () => {
     const updatedData = {
       // Omitting required fields: title and content
     };
@@ -225,7 +225,7 @@ describe("PostController", () => {
       .set("Authorization", `Bearer ${accessToken}`)
       .send(updatedData);
 
-    expect(response.status).toBe(403);
+    expect(response.status).toBe(404);
     expect(response.body).toHaveProperty("error");
   });
 

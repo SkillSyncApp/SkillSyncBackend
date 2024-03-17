@@ -9,13 +9,13 @@ export class BaseController<ModelType> {
 
   async getAll(req: Request, res: Response, selectFields?: string[]) {
     try {
-      const models = await this.model.find().select(selectFields);
+      const model = await this.model.find().select(selectFields);
 
-      if (!models) {
+      if (model.length === 0) {
         return res.status(404).json({ message: "Model not found" });
       }
 
-      res.send(models);
+      res.send(model);
     } catch (err) {
       res.status(500).json({ message: err.message });
     }
@@ -28,13 +28,13 @@ export class BaseController<ModelType> {
 
       const model = await this.model.find(query).select(selectFields);
 
-      if (!model) {
+      if (model.length === 0) {
         return res.status(404).json({ message: "Model not found" });
       }
 
       res.send(model[0]);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json(err.message);
     }
   }
 
@@ -43,7 +43,7 @@ export class BaseController<ModelType> {
       const obj = await this.model.create(req.body);
       res.status(201).send(obj);
     } catch (err) {
-      res.status(400).send({ message: err.message });
+      res.status(500).send(err.message);
     }
   }
 
@@ -57,7 +57,7 @@ export class BaseController<ModelType> {
 
       res.status(200).send({ message: "Model deleted successfully" });
     } catch (err) {
-      res.status(500).json({ error: "Internal Server Error" });
+      res.status(500).json(err.message);
     }
   }
 
@@ -73,12 +73,12 @@ export class BaseController<ModelType> {
       );
 
       if (!updateModel) {
-        return res.status(403).send({ error: "Forbidden" });
+        return res.status(404).json({ error: "Model not found" });
       }
 
       res.status(200).send(updateModel);
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json(err.message);
     }
   }
 }

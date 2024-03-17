@@ -22,7 +22,6 @@ const userData = {
   password: "password123",
   refreshTokens: [],
   type: "student",
-  image: "image.png",
   bio: "Sample bio",
 };
 
@@ -31,7 +30,6 @@ const postData = {
   ownerId: userData._id,
   title: "Test Post",
   content: "This is a test post.",
-  image: null,
   comments: [],
 };
 

@@ -25,7 +25,6 @@ beforeAll(async () => {
   app = await initApp();
   await User.deleteMany({ email: userData.email });
 });
-
 afterAll(async () => {
   await mongoose.connection.close();
 });
@@ -110,6 +109,7 @@ describe("Authentication tests", () => {
       expect(response.body.refreshToken).toBeDefined();
       accessToken = response.body.accessToken;
       refreshToken = response.body.refreshToken;
+
       expect(response.body.user).toEqual({
         _id: expect.any(String),
         type: "student",
@@ -121,40 +121,12 @@ describe("Authentication tests", () => {
     });
   });
 
-  describe("Logout API", () => {
-    it("should handle missing authorization token during logout", async () => {
-      const response = await request(app).post("/api/auth/logout").expect(401);
-
-      expect(response.text).toContain("Unauthorized");
-    });
-
-    it("should handle invalid authorization token during logout", async () => {
-      const response = await request(app)
-        .post("/api/auth/logout")
-        .set("Authorization", "Bearer InvalidToken")
-        .expect(401);
-
-      expect(response.text).toContain("Unauthorized");
-    });
-  });
-
   describe("Refresh Token API", () => {
-    it("should refresh access token with valid refresh token", async () => {
-      const response = await request(app)
-        .post("/api/auth/refresh")
-        .set("Authorization", `Bearer ${refreshToken}`)
-        .expect(200);
-
-      expect(response.body.accessToken).toBeDefined();
-      expect(response.body.refreshToken).toBeDefined();
-    });
-
     it("should handle expired refresh token after timeout", async () => {
-      const expiredRefreshToken = jwt.sign(
-        { _id: "userId" },
-        "expiredSecret",
-        { expiresIn: "-1s" } // Expired 1 second ago
-      );
+      // Mocking expired refresh token
+      const expiredRefreshToken = jwt.sign({ _id: "userId" }, "expiredSecret", {
+        expiresIn: "-1s",
+      });
 
       const response = await request(app)
         .post("/api/auth/refresh")
@@ -178,6 +150,77 @@ describe("Authentication tests", () => {
 
       expect(response.text).toContain("Unauthorized");
     });
+
+    it("should return 401 if user not found in the database", async () => {
+      // Mocking the User.findOne method to return null
+      jest.spyOn(User, "findOne").mockResolvedValueOnce(null);
+
+      const response = await request(app)
+        .post("/api/auth/refresh")
+        .set("Authorization", `Bearer ${refreshToken}`)
+        .expect(401);
+
+      expect(response.text).toContain("User not found");
+    });
+
+    it("should return 500 if any error occurs during the process", async () => {
+      // Mocking the User.findOne method to throw an error
+      jest
+        .spyOn(User, "findOne")
+        .mockRejectedValueOnce(new Error("Database error"));
+
+      const response = await request(app)
+        .post("/api/auth/refresh")
+        .set("Authorization", `Bearer ${refreshToken}`)
+        .expect(500);
+
+      expect(response.text).toContain("Database error");
+    });
+
+    it("should refresh access token with valid refresh token", async () => {
+      const response = await request(app)
+        .post("/api/auth/refresh")
+        .set("Authorization", `Bearer ${refreshToken}`)
+        .expect(200);
+
+      expect(response.body.accessToken).toBeDefined();
+      expect(response.body.refreshToken).toBeDefined();
+
+      const newAccessToken = response.body.accessToken;
+      newRefreshToken = response.body.refreshToken
+
+      const response2 = await request(app)
+        .get("/api/posts")
+        .set("Authorization", `Bearer ${newAccessToken}`);
+      expect(response2.statusCode).toBe(200);
+    });
+  });
+
+  describe("Logout API", () => {
+    it("should handle missing authorization token during logout", async () => {
+      const response = await request(app).post("/api/auth/logout").expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+
+    it("should handle invalid authorization token during logout", async () => {
+      const response = await request(app)
+        .post("/api/auth/logout")
+        .set("Authorization", "Bearer InvalidToken")
+        .expect(401);
+
+      expect(response.text).toContain("Unauthorized");
+    });
+
+    it("should handle successful logout", async () => {
+      const response = await request(app)
+        .post("/api/auth/logout")
+        .set("Authorization", `Bearer ${newRefreshToken}`)
+        .expect(200);
+
+      expect(response.text).toContain("Logout successful");
+    });
+
   });
 
   // Update profile tests
