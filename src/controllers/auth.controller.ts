@@ -49,7 +49,7 @@ const logInGoogle = async (req: Request, res: Response) => {
         name: user.name,
         email: user.email,
         image: {
-          originalName: "google " + payload.name +".png",
+          originalName: "google " + payload.name + ".png",
           serverFilename: picture,
         },
         bio: user.bio,
@@ -67,20 +67,20 @@ const register = async (req: Request, res: Response) => {
     return res.status(400).send("can't register the user - missing info");
 
   try {
-    const rs = await User.findOne({ email: email });
-    if (rs != null) return res.status(406).send("User already exists");
+    const response = await User.findOne({ email: email });
+    if (response != null) return res.status(406).send("User already exists");
 
     const salt = await bcrypt.genSalt(10);
     const encryptedPassword = await bcrypt.hash(password, salt);
 
-    const rs2 = await User.create({
+    const user = await User.create({
       name,
       email,
       password: encryptedPassword,
       type,
       bio,
     });
-    return res.status(201).send(rs2);
+    return res.status(201).send(user);
   } catch (err) {
     return res.status(500).send(err.message);
   }
