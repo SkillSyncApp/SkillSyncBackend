@@ -61,7 +61,6 @@ initApp().then((app) => {
     next: (err?: Error) => void
   ) {
     const token = socket.handshake.auth.token;
-
     verifyToken(token, (err, user) => {
       if (!err) {
         socket.data = { ...socket.data, userId: user._id };
