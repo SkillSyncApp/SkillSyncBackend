@@ -342,7 +342,7 @@ describe("Authentication tests", () => {
       const mockGoogleUser = {
         name: "Hadar Zaguri",
         email: "hadargoogle@gmail.com",
-        picture:  "http://hadargoogle.png"
+        picture: "http://hadargoogle.png",
       };
 
       // Mock verifyIdToken function of OAuth2Client
@@ -358,8 +358,12 @@ describe("Authentication tests", () => {
       expect(response.status).toBe(200);
       expect(response.body.user.name).toBe(mockGoogleUser.name);
       expect(response.body.user.email).toBe(mockGoogleUser.email);
-      expect(response.body.user.image.originalName).toBe("google " + mockGoogleUser.name + ".png");
-      expect(response.body.user.image.serverFilename).toBe(mockGoogleUser.picture);
+      expect(response.body.user.image.originalName).toBe(
+        "google " + mockGoogleUser.name + ".png"
+      );
+      expect(response.body.user.image.serverFilename).toBe(
+        mockGoogleUser.picture
+      );
 
       (OAuth2Client.prototype.verifyIdToken as any).mockRestore();
 
