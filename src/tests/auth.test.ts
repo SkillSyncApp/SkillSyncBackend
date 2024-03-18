@@ -187,7 +187,7 @@ describe("Authentication tests", () => {
       expect(response.body.refreshToken).toBeDefined();
 
       const newAccessToken = response.body.accessToken;
-      newRefreshToken = response.body.refreshToken
+      newRefreshToken = response.body.refreshToken;
 
       const response2 = await request(app)
         .get("/api/posts")
@@ -220,7 +220,6 @@ describe("Authentication tests", () => {
 
       expect(response.text).toContain("Logout successful");
     });
-
   });
 
   // Update profile tests

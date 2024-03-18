@@ -69,18 +69,19 @@ beforeAll(async () => {
 afterAll(async () => {
   await PostModel.findByIdAndDelete(postId);
   await CommentModel.findByIdAndDelete(commentId);
+
+  // Close the MongoDB connection
   await mongoose.connection.close();
 });
 
 describe("CommentController", () => {
   describe("addComment", () => {
     it("should add a new comment to a post", async () => {
-      const userId = generateObjectId();
       const content = "This is a test comment.";
 
       const response = await request(app)
         .post(`/api/comments/${postId}`)
-        .send({ userId, content })
+        .send({ content })
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(200);
 
@@ -93,12 +94,11 @@ describe("CommentController", () => {
 
     it("should return 404 when adding comment to non-existing post", async () => {
       const nonExistingPostId = generateObjectId();
-      const userId = generateObjectId();
       const content = "This comment should not be added.";
 
       const response = await request(app)
         .post(`/api/comments/${nonExistingPostId}`)
-        .send({ userId, content })
+        .send({ content })
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(404);
 
@@ -106,12 +106,11 @@ describe("CommentController", () => {
     });
 
     it("should return 401 when adding comment without authentication", async () => {
-      const userId = generateObjectId();
       const content = "This comment should not be added.";
 
       await request(app)
         .post(`/api/comments/${postId}`)
-        .send({ userId, content })
+        .send({ content })
         .expect(401);
     });
 
@@ -126,7 +125,7 @@ describe("CommentController", () => {
 
       const response = await request(app)
         .post(`/api/comments/${postId}`)
-        .send({ userId, content })
+        .send({ content })
         .set("Authorization", `Bearer ${accessToken}`)
         .expect(500);
 
