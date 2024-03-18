@@ -2,6 +2,7 @@ import request from "supertest";
 import { Express } from "express";
 import initApp from "../app";
 import fs from "fs/promises";
+import mongoose from "mongoose";
 
 let app: Express;
 
@@ -20,6 +21,11 @@ beforeAll(async () => {
       .post("/api/file/image")
       .attach("file", "public/image-test-dont-delete.png");
   }
+});
+
+afterAll(async () => {
+  // Close the MongoDB connection
+  mongoose.connection.close();
 });
 
 describe("Image Upload API", () => {

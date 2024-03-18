@@ -3,7 +3,6 @@ import dotenv from "dotenv";
 import express, { Express } from "express";
 import mongoose from "mongoose";
 import BaseRouter from "./routes/index";
-import path from 'path';
 
 dotenv.config();
 
@@ -12,7 +11,7 @@ const initApp = async (): Promise<Express> => {
     if (!process.env.DB_URL) {
       throw new Error("DB_URL environment variable is not defined");
     }
-    
+
     await mongoose.connect(process.env.DB_URL);
     console.log("Connected to DB");
     const app = express();
@@ -28,9 +27,6 @@ const initApp = async (): Promise<Express> => {
     // Add APIs
     app.use("/api", BaseRouter);
     app.use("/public", express.static("public"));
-    app.get('*', (_, res) => {
-      res.sendFile('client/index.html', { root: "public" });
-    })
 
     mongoose.connection.once("open", () =>
       console.log("Connected to Database")

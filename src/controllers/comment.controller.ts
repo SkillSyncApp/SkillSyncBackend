@@ -6,7 +6,8 @@ import { Request, Response } from "express";
 const addComment = async (req: Request, res: Response) => {
   try {
     const postId = req.params.postId;
-    const { userId, content } = req.body;
+    const userId = req.user._id
+    const { content } = req.body;
 
     const post = await PostModel.findById(postId);
     if (!post) {
@@ -34,8 +35,6 @@ const addComment = async (req: Request, res: Response) => {
 const deleteComment = async (req: Request, res: Response) => {
   try {
     const { postId, commentId } = req.params;
-
-    const post = await PostModel.findById(postId);
 
     await PostModel.findByIdAndUpdate(
       postId,

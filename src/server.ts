@@ -25,7 +25,9 @@ initApp().then((app) => {
   };
   const specs = swaggerJsDoc(options);
   app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
-
+  app.use('*', (_, res) => {
+    res.sendFile('client/index.html', { root: "public" });
+  })
   let server: Server;
   let port: string;
 
