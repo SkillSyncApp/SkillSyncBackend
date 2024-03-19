@@ -23,7 +23,7 @@ initApp().then((app) => {
         {
           url:
             process.env.NODE_ENV === "production"
-              ? "https://localhost:" + process.env.HTTPS_PORT
+              ? "https://node03.cs.colman.ac.il"
               : "http://localhost:" + process.env.PORT,
         },
       ],
@@ -54,6 +54,7 @@ initApp().then((app) => {
 
   server = server
     .listen(port, () => {
+      // TODO: print htpp/s
       console.log(`Server running on http://localhost:${port}`);
     })
     .on("error", (err) => {
