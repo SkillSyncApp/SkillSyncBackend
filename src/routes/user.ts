@@ -61,7 +61,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   get:
  *     summary: Get user details by ID
  *     tags: [User]
@@ -88,7 +88,7 @@ router.get("/:id?", authMiddleware, getUserOverview);
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   put:
  *     summary: Update a user by ID
  *     tags: [User]
@@ -123,7 +123,7 @@ router.put("/:id", authMiddleware, userController.putById.bind(userController));
 
 /**
  * @swagger
- * /users/{id}:
+ * /api/users/{id}:
  *   delete:
  *     summary: Delete a user by ID
  *     tags: [User]

@@ -46,7 +46,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /comment/{postId}:
+ * /api/comments/{postId}:
  *   post:
  *     summary: Add a comment to a post
  *     tags: [Comment]
@@ -81,7 +81,7 @@ router.post("/:postId", authMiddleware, commentController.addComment);
 
 /**
  * @swagger
- * /comment/{postId}/{commentId}:
+ * /api/comments/{postId}/{commentId}:
  *   delete:
  *     summary: Delete a comment from a post
  *     tags: [Comment]

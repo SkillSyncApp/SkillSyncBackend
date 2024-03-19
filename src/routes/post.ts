@@ -70,7 +70,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /posts:
+ * /api/posts/:
  *   get:
  *     summary: Get all posts
  *     tags: [Post]
@@ -92,7 +92,7 @@ router.get("/", authMiddleware, postController.get.bind(postController));
 
 /**
  * @swagger
- * /posts:
+ * /api/posts:
  *   post:
  *     summary: Create a new post
  *     tags: [Post]
@@ -118,7 +118,7 @@ router.post("/", authMiddleware, postController.create.bind(postController));
 
 /**
  * @swagger
- * /posts/{ownerId}:
+ * /api/posts/{ownerId}:
  *   get:
  *     summary: Get posts by user ID
  *     tags: [Post]
@@ -151,7 +151,7 @@ router.get(
 
 /**
  * @swagger
- * /posts/{id}:
+ * /api/posts/{id}:
  *   put:
  *     summary: Update a post by ID
  *     tags: [Post]
@@ -186,7 +186,7 @@ router.put("/:id", authMiddleware, postController.putById.bind(postController));
 
 /**
  * @swagger
- * /posts/{id}:
+ * /api/posts/{id}:
  *   delete:
  *     summary: Delete a post by ID
  *     tags: [Post]
@@ -215,7 +215,7 @@ router.delete(
 
 /**
  * @swagger
- * /posts/comments/{id}:
+ * /api/posts/comments/{id}:
  *   get:
  *     summary: Get comments by post ID
  *     tags: [Post]
