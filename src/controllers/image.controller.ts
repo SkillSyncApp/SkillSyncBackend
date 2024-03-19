@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 const base =
   process.env.NODE_ENV === "production"
-    ? "https://node03.cs.colman.ac.il/public/"
+    ? "https://node03.cs.colman.ac.il/"
     : "http://localhost:3002/";
 
 const uploadImage = async (req: Request, res: Response) => {
