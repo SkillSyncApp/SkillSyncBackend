@@ -33,8 +33,8 @@ const router = express.Router();
  *           type: string
  *           description: The user password
  *       example:
- *         email: 'bob@gmail.com'
- *         password: '123456'
+ *         email: 'john.doe@example.com'
+ *         password: 'john123'
  *     UserRequest:
  *       type: object
  *       required:
@@ -57,10 +57,16 @@ const router = express.Router();
  *           description: The user's password
  *         type:
  *           type: string
- *           description: The user's type
+ *           description: The user's type | student/company
  *         bio:
  *           type: string
  *           description: Additional information about the user
+ *       example:
+ *         name: 'John Doe'
+ *         email: 'john.doe@example.com'
+ *         password: 'john123'
+ *         type: 'student'
+ *         bio: 'Sample bio'
  *     UserResponse:
  *       type: object
  *       properties:
@@ -76,7 +82,7 @@ const router = express.Router();
  *           description: The user's email address
  *         type:
  *           type: string
- *           description: The user's type
+ *           description: The user's type | student/company
  *         bio:
  *           type: string
  *           description: Additional information about the user
@@ -212,6 +218,10 @@ router.post("/refresh", authController.refresh);
  *               image:
  *                 type: string
  *                 description: URL of the user's profile image
+ *           example:
+ *             name: "John Doe"
+ *             bio: "Sample bio"
+ *             image: "https://example.com/profile.jpg"
  *     responses:
  *       200:
  *         description: User profile updated successfully
@@ -240,10 +250,13 @@ router.put("/update-profile", authMiddleware, authController.updateProfile);
  *             properties:
  *               type:
  *                 type: string
- *                 description: The user's type
+ *                 description: The user's type | student/company
  *               bio:
  *                 type: string
  *                 description: Additional information about the user
+ *           example:
+ *             type: "student"
+ *             bio: "Sample bio"
  *     responses:
  *       200:
  *         description: User additional information updated successfully

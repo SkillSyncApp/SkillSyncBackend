@@ -13,7 +13,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /image:
+ * /api/file/image:
  *   post:
  *     summary: Upload an image
  *     tags: [Image]

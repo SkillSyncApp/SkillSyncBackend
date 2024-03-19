@@ -65,6 +65,8 @@ const router = express.Router();
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/CommentRequest'
+ *           example:
+ *             content: "some message content"
  *     responses:
  *       200:
  *         description: Comment added successfully
