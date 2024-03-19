@@ -32,8 +32,15 @@ const router = express.Router();
  *               type: string
  *               description: The name of the sender
  *             image:
- *               type: string
- *               description: The image URL of the sender
+ *               type: object
+ *               properties:
+ *                 originalName:
+ *                   type: string
+ *                   description: The original name of the image file
+ *                 serverFilename:
+ *                   type: string
+ *                   description: The URL of the sender's profile image on the server
+ *               description: The image object of the sender
  *         content:
  *           type: string
  *           description: The content of the message

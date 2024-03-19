@@ -99,8 +99,8 @@ const router = express.Router();
  *           type: string
  *           description: The JWT refresh token
  *       example:
- *         accessToken: '123cd123x1xx1'
- *         refreshToken: '134r2134cr1x3c'
+ *         accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWY5Y2I5MWE5NzkzZjc1MDgzMTg5MDciLCJpYXg4BYAx-DXdR'
+ *         refreshToken: 'GciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI2NWY5Y2I5MWE5NzkzZjc1MDgzMDgzMTg5MDciLCJpYXQiOjE3MTA4N'
  */
 
 /**
@@ -216,12 +216,22 @@ router.post("/refresh", authController.refresh);
  *                 type: string
  *                 description: Additional information about the user
  *               image:
- *                 type: string
- *                 description: URL of the user's profile image
+ *                 type: object
+ *                 properties:
+ *                   originalName:
+ *                     type: string
+ *                     description: The original name of the image file
+ *                   serverFilename:
+ *                     type: string
+ *                     description: The URL of the user's profile image on the server
+ *                 description: The updated image object of the user
  *           example:
  *             name: "John Doe"
  *             bio: "Sample bio"
- *             image: "https://example.com/profile.jpg"
+ *             image: {
+ *               "originalName": "Screenshot 2024-02-22 at 23.50.34.png",
+ *               "serverFilename": "http://localhost:3002/public/1710631124924.50.34.png"
+ *             }
  *     responses:
  *       200:
  *         description: User profile updated successfully

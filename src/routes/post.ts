@@ -31,8 +31,15 @@ const router = express.Router();
  *           type: string
  *           description: The content of the post
  *         image:
- *           type: string
- *           description: The URL of the post image
+ *           type: object
+ *           properties:
+ *             originalName:
+ *               type: string
+ *               description: The original name of the image file
+ *             serverFilename:
+ *               type: string
+ *               description: The URL of the post image on the server
+ *           description: The image object of the post
  *         createdAt:
  *           type: string
  *           format: date-time
@@ -51,8 +58,15 @@ const router = express.Router();
  *           type: string
  *           description: The content of the post
  *         image:
- *           type: string
- *           description: The URL of the post image
+ *           type: object
+ *           properties:
+ *             originalName:
+ *               type: string
+ *               description: The original name of the image file
+ *             serverFilename:
+ *               type: string
+ *               description: The URL of the post image on the server
+ *           description: The image object of the post
  *
  *     PostUpdateRequest:
  *       type: object
@@ -64,8 +78,15 @@ const router = express.Router();
  *           type: string
  *           description: The updated content of the post
  *         image:
- *           type: string
- *           description: The updated URL of the post image
+ *           type: object
+ *           properties:
+ *             originalName:
+ *               type: string
+ *               description: The original name of the image file
+ *             serverFilename:
+ *               type: string
+ *               description: The URL of the post image on the server
+ *           description: The image object of the post
  */
 
 /**
@@ -107,7 +128,10 @@ router.get("/", authMiddleware, postController.get.bind(postController));
  *           example:
  *             title: "Sample Title"
  *             content: "Some sample content for the post"
- *             image: "https://example.com/sample-image.jpg"
+ *             image: {
+ *               "originalName": "SampleImage.jpg",
+ *               "serverFilename": "http://localhost:3002/uploads/sample-image.jpg"
+ *             }
  *     responses:
  *       200:
  *         description: The created post
@@ -177,7 +201,10 @@ router.get(
  *           example:
  *             title: "Updated Title"
  *             content: "Updated content for the post"
- *             image: "https://example.com/updated-image.jpg"
+ *             image: {
+ *               "originalName": "SampleImage.jpg",
+ *               "serverFilename": "http://localhost:3002/uploads/sample-image.jpg"
+ *             }
  *     responses:
  *       200:
  *         description: The updated post
