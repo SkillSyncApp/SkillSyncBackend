@@ -58,7 +58,7 @@ afterAll(async () => {
 });
 
 describe("GET /api/users/:id", () => {
-  test("should get user details by ID", async () => {
+  it("should get user details by ID", async () => {
     const response = await request(app)
       .get(`/api/users/${userId}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -68,8 +68,7 @@ describe("GET /api/users/:id", () => {
     expect(response.body).toHaveProperty("email", userData.email);
   });
 
-  test("should handle internal server error (500)", async () => {
-    // Mocking the model find method to throw an error
+  it("should handle internal server error (500)", async () => {
     jest.spyOn(User, "find").mockImplementationOnce(() => {
       throw new Error("Internal Server Error");
     });
@@ -80,14 +79,11 @@ describe("GET /api/users/:id", () => {
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual("Internal Server Error");
-
-    // Restore the original implementation after the test
-    jest.spyOn(User, "find").mockRestore();
   });
 });
 
 describe("GET /api/users", () => {
-  test("should get all user details", async () => {
+  it("should get all user details", async () => {
     const response = await request(app)
       .get(`/api/users`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -101,8 +97,7 @@ describe("GET /api/users", () => {
     });
   });
 
-  test("should handle internal server error (500)", async () => {
-    // Mocking the model find method to throw an error
+  it("should handle internal server error (500)", async () => {
     jest.spyOn(User, "find").mockImplementationOnce(() => {
       throw new Error("Internal Server Error");
     });
@@ -113,8 +108,5 @@ describe("GET /api/users", () => {
 
     expect(response.status).toBe(500);
     expect(response.body).toEqual({ message: "Internal Server Error" });
-
-    // Restore the original implementation after the test
-    jest.spyOn(User, "find").mockRestore();
   });
 });

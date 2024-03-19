@@ -29,7 +29,7 @@ afterAll(async () => {
 });
 
 describe("Image Upload API", () => {
-  test("responds with 200 and image URL if image is provided", async () => {
+  it("responds with 200 and image URL if image is provided", async () => {
     const response = await request(app)
       .post("/api/file/image")
       .attach("file", "public/image-test-dont-delete.png");
@@ -37,7 +37,7 @@ describe("Image Upload API", () => {
     expect(response.status).toBe(200);
   });
 
-  test("responds with 400 if no image is provided", async () => {
+  it("responds with 400 if no image is provided", async () => {
     const response = await request(app).post("/api/file/image");
 
     expect(response.status).toBe(400);
