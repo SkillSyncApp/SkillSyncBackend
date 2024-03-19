@@ -6,9 +6,21 @@ const router = express.Router();
 
 /**
  * @swagger
- * tags:
- *   name: Image
- *   description: APIs for image upload
+ * components:
+ *   schemas:
+ *     UploadedImage:
+ *       type: object
+ *       properties:
+ *         image:
+ *           type: object
+ *           properties:
+ *             originalName:
+ *               type: string
+ *               description: The original name of the updated image file
+ *             serverFilename:
+ *               type: string
+ *               description: The URL of the updated post image on the server
+ *           description: The updated image object of the post
  */
 
 /**
@@ -33,14 +45,11 @@ const router = express.Router();
  *         content:
  *           application/json:
  *             schema:
- *               type: object
- *               properties:
- *                 url:
- *                   type: string
- *                   description: URL of the uploaded image
+ *               $ref: '#/components/schemas/UploadedImage'
  *       500:
  *         description: Internal server error
  */
+
 router.post("/image", upload.single("file"), imageController.uploadImage);
 
 export default router;
