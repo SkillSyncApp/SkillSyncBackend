@@ -126,33 +126,4 @@ router.get("/:id?", authMiddleware, getUserOverview);
  */
 router.put("/:id", authMiddleware, userController.putById.bind(userController));
 
-/**
- * @swagger
- * /api/users/{id}:
- *   delete:
- *     summary: Delete a user by ID
- *     tags: [User]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: id
- *         required: true
- *         description: ID of the user to delete
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User deleted successfully
- *       404:
- *         description: User not found
- *       500:
- *         description: Internal server error
- */
-router.delete(
-  "/:id",
-  authMiddleware,
-  userController.deleteById.bind(userController)
-);
-
 export default router;
