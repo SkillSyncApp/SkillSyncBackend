@@ -107,6 +107,11 @@ router.get("/:id?", authMiddleware, getUserOverview);
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/UserUpdateRequest'
+ *           example:
+ *             name: "John Doe"
+ *             email: "john.doe@example.com"
+ *             image: "https://example.com/profile.jpg"
+ *             bio: "Sample bio"
  *     responses:
  *       200:
  *         description: The updated user

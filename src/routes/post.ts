@@ -104,6 +104,10 @@ router.get("/", authMiddleware, postController.get.bind(postController));
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/PostRequest'
+ *           example:
+ *             title: "Sample Title"
+ *             content: "Some sample content for the post"
+ *             image: "https://example.com/sample-image.jpg"
  *     responses:
  *       200:
  *         description: The created post
@@ -170,6 +174,10 @@ router.get(
  *         application/json:
  *           schema:
  *             $ref: '#/components/schemas/PostUpdateRequest'
+ *           example:
+ *             title: "Updated Title"
+ *             content: "Updated content for the post"
+ *             image: "https://example.com/updated-image.jpg"
  *     responses:
  *       200:
  *         description: The updated post
