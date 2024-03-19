@@ -113,5 +113,5 @@ export default {
   getConversations,
   getConversationWith,
   getMessages,
-  addConversation,
+  addConversation
 };
