@@ -81,39 +81,4 @@ const router = express.Router();
  */
 router.post("/:postId", authMiddleware, commentController.addComment);
 
-/**
- * @swagger
- * /api/comments/{postId}/{commentId}:
- *   delete:
- *     summary: Delete a comment from a post
- *     tags: [Comment]
- *     security:
- *       - bearerAuth: []
- *     parameters:
- *       - in: path
- *         name: postId
- *         required: true
- *         description: ID of the post containing the comment
- *         schema:
- *           type: string
- *       - in: path
- *         name: commentId
- *         required: true
- *         description: ID of the comment to delete
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: Comment deleted successfully
- *       404:
- *         description: Post or comment not found
- *       500:
- *         description: Internal server error
- */
-router.delete(
-  "/:postId/:commentId",
-  authMiddleware,
-  commentController.deleteComment
-);
-
 export default router;
