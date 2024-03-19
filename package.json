@@ -9,7 +9,7 @@
     "start": "tsc && node ./dist/src/server.js",
     "dev": "tsnd --respawn --files ./src/server.ts",
     "tsc": "tsc",
-    "prod": "cp .envprod .env && tsc -p tsconfig_prod.json && pm2 restart ecosystem.config.js --env production",
+    "prod": "cp .envprod .env && rm -r -f ./public/client && tsc -p tsconfig_prod.json && cp -a ../SkillSyncClient/dist ./public/client && pm2 restart ecosystem.config.js --env production",
     "prod1": "cp .envprod .env && rm -r -f ./public/client && tsc -p tsconfig_prod.json && cp -a ../SkillSyncClient/dist ./public/client && node ./dist/src/server.js"
   },
   "keywords": [],
