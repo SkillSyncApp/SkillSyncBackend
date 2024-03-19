@@ -63,7 +63,7 @@ const router = express.Router();
 
 /**
  * @swagger
- * /chat/conversation:
+ * /api/chat/conversation:
  *   get:
  *     summary: Get user's conversations
  *     tags: [Chat]
@@ -85,7 +85,7 @@ router.get("/conversation", authMiddleware, chatController.getConversations);
 
 /**
  * @swagger
- * /chat/conversation/with/{userId}:
+ * /api/chat/conversation/with/{userId}:
  *   get:
  *     summary: Get conversation with a specific user
  *     tags: [Chat]
@@ -116,7 +116,7 @@ router.get(
 
 /**
  * @swagger
- * /chat/conversation/with/{userId}:
+ * /api/chat/conversation/with/{userId}:
  *   post:
  *     summary: Start a conversation with a user
  *     tags: [Chat]
@@ -151,7 +151,7 @@ router.post(
 
 /**
  * @swagger
- * /chat/conversation/{id}/messages:
+ * /api/chat/conversation/{id}/messages:
  *   get:
  *     summary: Get messages of a conversation
  *     tags: [Chat]
