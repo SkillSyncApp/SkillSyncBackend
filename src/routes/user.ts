@@ -31,8 +31,15 @@ const router = express.Router();
  *           format: email
  *           description: The email address of the user
  *         image:
- *           type: string
- *           description: The URL of the user's profile image
+ *           type: object
+ *           properties:
+ *             originalName:
+ *               type: string
+ *               description: The original name of the updated image file
+ *             serverFilename:
+ *               type: string
+ *               description: The URL of the updated post image on the server
+ *           description: The updated image object of the post
  *         bio:
  *           type: string
  *           description: The biography of the user
@@ -52,8 +59,15 @@ const router = express.Router();
  *           format: email
  *           description: The updated email address of the user
  *         image:
- *           type: string
- *           description: The updated URL of the user's profile image
+ *           type: object
+ *           properties:
+ *             originalName:
+ *               type: string
+ *               description: The original name of the updated image file
+ *             serverFilename:
+ *               type: string
+ *               description: The URL of the updated post image on the server
+ *           description: The updated image object of the post
  *         bio:
  *           type: string
  *           description: The updated biography of the user
@@ -110,7 +124,10 @@ router.get("/:id?", authMiddleware, getUserOverview);
  *           example:
  *             name: "John Doe"
  *             email: "john.doe@example.com"
- *             image: "https://example.com/profile.jpg"
+ *             image: {
+ *               "originalName": "Screenshot 2024-02-22 at 23.50.34.png",
+ *               "serverFilename": "http://localhost:3002/public/1710631124924.50.34.png"
+ *             }
  *             bio: "Sample bio"
  *     responses:
  *       200:
