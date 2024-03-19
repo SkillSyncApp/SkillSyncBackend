@@ -10,7 +10,7 @@ let ownerId: string;
 let ownerId2: string;
 let accessToken: string;
 let accessToken2: string;
-let conversationId: string; // Added conversationId variable
+let conversationId: string;
 
 const userData = {
   name: "Hadar Zaguri",
@@ -78,7 +78,6 @@ describe("Chat Routes", () => {
   });
 
   it("should add a conversation with another user", async () => {
-    // Test adding a conversation with another user for the first user
     const res = await supertest(app)
       .post(`/api/chat/conversation/with/${ownerId2}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -86,7 +85,6 @@ describe("Chat Routes", () => {
   });
 
   it("should get conversation with another user", async () => {
-    // Test getting conversation with the second user for the first user
     const res = await supertest(app)
       .get(`/api/chat/conversation/with/${ownerId2}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -94,7 +92,6 @@ describe("Chat Routes", () => {
   });
 
   it("should handle internal server error when fetching conversations", async () => {
-    // Mocking the find method on the ChatModel prototype to throw an error
     jest.spyOn(ChatModel, "find").mockImplementation(() => {
       throw new Error("Internal Server Error");
     });
@@ -107,31 +104,31 @@ describe("Chat Routes", () => {
     expect(res.body).toEqual({ message: "Internal Server Error" });
   });
 
-//   it("should handle internal server error when adding a conversation with another user", async () => {
-//     // Mocking the find method on the ChatModel prototype to throw an error
-//     jest.spyOn(ChatModel, "findById").mockImplementation(() => {
-//       throw new Error("Internal Server Error");
-//     });
+  it("should handle internal server error when adding a conversation with another user", async () => {
+    // Mocking the find method on the ChatModel prototype to throw an error
+    jest.spyOn(ChatModel, "findById").mockImplementation(() => {
+      throw new Error("Internal Server Error");
+    });
 
-//     // Test adding a conversation with another user for the first user
-//     const res = await supertest(app)
-//       .post(`/api/chat/conversation/with/${ownerId2}`)
-//       .set("Authorization", `Bearer ${accessToken}`);
-//     expect(res.statusCode).toEqual(500);
-//     expect(res.body).toEqual({ message: "Internal Server Error" });
-//   });
+    // Test adding a conversation with another user for the first user
+    const res = await supertest(app)
+      .post(`/api/chat/conversation/with/${ownerId2}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+    expect(res.statusCode).toEqual(500);
+    expect(res.body).toEqual({ message: "Internal Server Error" });
+  });
 
-//   it("should handle internal server error when getting conversation with another user", async () => {
-//     // Mocking the find method on the ChatModel prototype to throw an error
-//     jest.spyOn(ChatModel, "find").mockImplementation(() => {
-//       throw new Error("Internal Server Error");
-//     });
+  //   it("should handle internal server error when getting conversation with another user", async () => {
+  //     // Mocking the find method on the ChatModel prototype to throw an error
+  //     jest.spyOn(ChatModel, "find").mockImplementation(() => {
+  //       throw new Error("Internal Server Error");
+  //     });
 
-    // Test getting conversation with the second user for the first user
-//     const res = await supertest(app)
-//       .get(`/api/chat/conversation/with/${ownerId2}`)
-//       .set("Authorization", `Bearer ${accessToken}`);
-//     expect(res.statusCode).toEqual(500);
-//     expect(res.body).toEqual({ message: "Internal Server Error" });
-//   });
+  // Test getting conversation with the second user for the first user
+  //     const res = await supertest(app)
+  //       .get(`/api/chat/conversation/with/${ownerId2}`)
+  //       .set("Authorization", `Bearer ${accessToken}`);
+  //     expect(res.statusCode).toEqual(500);
+  //     expect(res.body).toEqual({ message: "Internal Server Error" });
+  //   });
 });

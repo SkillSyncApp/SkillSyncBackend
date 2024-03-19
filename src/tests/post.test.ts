@@ -69,7 +69,7 @@ afterAll(async () => {
 });
 
 describe("PostController", () => {
-  test("should create a new post", async () => {
+  it("should create a new post", async () => {
     const createdPost = await request(app)
       .post("/api/posts/")
       .set("Authorization", `Bearer ${accessToken}`)
@@ -84,7 +84,7 @@ describe("PostController", () => {
     createdPostId = createdPost.body._id;
   });
 
-  test("should get a specific post by ID", async () => {
+  it("should get a specific post by ID", async () => {
     const response = await request(app)
       .get(`/api/posts/${createdPostId}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -92,7 +92,7 @@ describe("PostController", () => {
     expect(response.status).toBe(200);
   });
 
-  test("should get all posts with owners", async () => {
+  it("should get all posts with owners", async () => {
     const response = await request(app)
       .get("/api/posts")
       .set("Authorization", `Bearer ${accessToken}`);
@@ -112,7 +112,7 @@ describe("PostController", () => {
     expect(response.body.length).toBeGreaterThan(0);
   });
 
-  test("should return 500 when encountering an internal server error during post creation", async () => {
+  it("should return 500 when encountering an internal server error during post creation", async () => {
     const originalCreate = BaseController.prototype.create;
     jest
       .spyOn(BaseController.prototype, "create")
@@ -134,7 +134,7 @@ describe("PostController", () => {
     BaseController.prototype.create = originalCreate;
   });
 
-  test("should get comments by post id", async () => {
+  it("should get comments by post id", async () => {
     const response = await request(app)
       .get(`/api/posts/comments/${createdPostId}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -143,7 +143,7 @@ describe("PostController", () => {
     expect(response.body).toBeInstanceOf(Array);
   });
 
-  test("should return 400 for invalid ownerId", async () => {
+  it("should return 400 for invalid ownerId", async () => {
     const response = await request(app)
       .get("/api/posts/invalidOwnerId")
       .set("Authorization", `Bearer ${accessToken}`);
@@ -161,7 +161,7 @@ describe("PostController", () => {
     expect(response.body).toEqual({ error: "postId isn't valid" });
   });
 
-  test("should update a post by ID", async () => {
+  it("should update a post by ID", async () => {
     const updatedData = {
       title: "Updated Test Post",
       content: "This post has been updated.",
@@ -176,10 +176,9 @@ describe("PostController", () => {
     expect(response.body).toHaveProperty("_id", createdPostId);
     expect(response.body.title).toBe(updatedData.title);
     expect(response.body.content).toBe(updatedData.content);
-    // expect(response.body.image).toBe(updatedData.image);
   });
 
-  test("should return 404 when updating a non-existing post by ID", async () => {
+  it("should return 404 when updating a non-existing post by ID", async () => {
     const nonExistingPostId = new mongoose.Types.ObjectId();
     const updatedData = {
       ownerId: userData._id,
@@ -197,13 +196,13 @@ describe("PostController", () => {
     expect(response.body).toHaveProperty("error", "Model not found");
   });
 
-  test("should return 401 when creating a post without authentication", async () => {
+  it("should return 401 when creating a post without authentication", async () => {
     const response = await request(app).post("/api/posts/").send(postData);
 
     expect(response.status).toBe(401);
   });
 
-  test("should delete a post by ID", async () => {
+  it("should delete a post by ID", async () => {
     const response = await request(app)
       .delete(`/api/posts/${createdPostId}`)
       .set("Authorization", `Bearer ${accessToken}`);
@@ -215,7 +214,7 @@ describe("PostController", () => {
     );
   });
 
-  test("should return 404 when updating a post with missing fields", async () => {
+  it("should return 404 when updating a post with missing fields", async () => {
     const updatedData = {
       // Omitting required fields: title and content
     };
@@ -229,7 +228,7 @@ describe("PostController", () => {
     expect(response.body).toHaveProperty("error");
   });
 
-  test("should return 404 when deleting a non-existing post by ID", async () => {
+  it("should return 404 when deleting a non-existing post by ID", async () => {
     const nonExistingPostId = new mongoose.Types.ObjectId();
 
     const response = await request(app)
@@ -240,7 +239,7 @@ describe("PostController", () => {
     expect(response.body).toHaveProperty("error", "Model not found");
   });
 
-  test("should return 401 when updating a post without authentication", async () => {
+  it("should return 401 when updating a post without authentication", async () => {
     const updatedData = {
       title: "Updated Test Post",
       content: "This post has been updated.",
@@ -253,7 +252,7 @@ describe("PostController", () => {
     expect(response.status).toBe(401);
   });
 
-  test("should return 404 if post is not found", async () => {
+  it("should return 404 if post is not found", async () => {
     const nonExistingPostId = new mongoose.Types.ObjectId();
 
     const response = await request(app)
