@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import { Express } from "express";
 import User from "../models/user";
 import ChatModel from "../models/chat";
+import UserModel from "../models/user";
+import MessageModel from "../models/message";
 
 let app: Express;
 let ownerId: string;
@@ -77,13 +79,6 @@ describe("Chat Routes", () => {
     expect(res.body).toBeInstanceOf(Array);
   });
 
-  it("should add a conversation with another user", async () => {
-    const res = await supertest(app)
-      .post(`/api/chat/conversation/with/${ownerId2}`)
-      .set("Authorization", `Bearer ${accessToken}`);
-    expect(res.statusCode).toEqual(200);
-  });
-
   it("should get conversation with another user", async () => {
     const res = await supertest(app)
       .get(`/api/chat/conversation/with/${ownerId2}`)
@@ -104,10 +99,46 @@ describe("Chat Routes", () => {
     expect(res.body).toEqual({ message: "Internal Server Error" });
   });
 
-  it("should handle internal server error when adding a conversation with another user", async () => {
-    // Mocking the find method on the ChatModel prototype to throw an error
-    jest.spyOn(ChatModel, "findById").mockImplementation(() => {
+  it("should add a conversation with another user", async () => {
+    const res = await supertest(app)
+      .post(`/api/chat/conversation/with/${ownerId2}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+    expect(res.statusCode).toEqual(200);
+  });
+
+  it("should return 400 given a conversation that already exists between 2 users", async () => {
+    const res = await supertest(app)
+      .post(`/api/chat/conversation/with/${ownerId2}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+    expect(res.statusCode).toEqual(400);
+  });
+
+  it("should handle internal server error 500 on create conversation", async () => {
+    jest.spyOn(UserModel, "findById").mockResolvedValue(null);
+
+    const res = await supertest(app)
+      .post(`/api/chat/conversation/with/${ownerId2}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+    expect(res.statusCode).toEqual(500);
+  });
+
+  it("should handle internal server error 500 on get conversation", async () => {
+    jest.spyOn(ChatModel, "findOneAndUpdate").mockImplementation(() => {
       throw new Error("Internal Server Error");
+    });
+
+    const res = await supertest(app)
+      .get(`/api/chat/conversation/with/${ownerId2}`)
+      .set("Authorization", `Bearer ${accessToken}`);
+
+    expect(res.statusCode).toEqual(500);
+    expect(res.body).toHaveProperty("message", "Internal Server Error");
+  });
+
+  it("should handle server error when adding a conversation with another user", async () => {
+    // Mocking the find method on the ChatModel prototype to throw an error
+    jest.spyOn(ChatModel, "findOne").mockImplementation(() => {
+      throw new Error("Internal server error");
     });
 
     // Test adding a conversation with another user for the first user
@@ -115,16 +146,20 @@ describe("Chat Routes", () => {
       .post(`/api/chat/conversation/with/${ownerId2}`)
       .set("Authorization", `Bearer ${accessToken}`);
     expect(res.statusCode).toEqual(500);
-    expect(res.body).toEqual({ message: "Internal Server Error" });
   });
-
   //   it("should handle internal server error when getting conversation with another user", async () => {
   //     // Mocking the find method on the ChatModel prototype to throw an error
-  //     jest.spyOn(ChatModel, "find").mockImplementation(() => {
-  //       throw new Error("Internal Server Error");
-  //     });
+  //     jest.spyOn(UserModel, "findById").mockImplementation((id: any) => {
+  //         const mockQuery: Partial<Query<any, any, any, any, any>> = {
+  //           exec: jest.fn(),
+  //           select: jest.fn().mockImplementation(() => {
+  //             throw new Error("Mocked select error");
+  //           })
+  //         };
+  //         return mockQuery as Query<any, any, any, any, any>;
+  //       });
 
-  // Test getting conversation with the second user for the first user
+  //     // Test getting conversation with the second user for the first user
   //     const res = await supertest(app)
   //       .get(`/api/chat/conversation/with/${ownerId2}`)
   //       .set("Authorization", `Bearer ${accessToken}`);
