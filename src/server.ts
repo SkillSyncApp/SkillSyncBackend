@@ -19,15 +19,22 @@ initApp().then((app) => {
         description:
           "REST server including authentication using JWT and refresh token",
       },
-      servers: [{ url: "http://localhost:3002" }],
+      servers: [
+        {
+          url:
+            process.env.NODE_ENV === "production"
+              ? "https://localhost:" + process.env.HTTPS_PORT
+              : "http://localhost:" + process.env.PORT,
+        },
+      ],
     },
     apis: ["./src/routes/*.ts"],
   };
   const specs = swaggerJsDoc(options);
   app.use("/api-docs", swaggerUI.serve, swaggerUI.setup(specs));
-  app.use('*', (_, res) => {
-    res.sendFile('client/index.html', { root: "public" });
-  })
+  app.use("*", (_, res) => {
+    res.sendFile("client/index.html", { root: "public" });
+  });
   let server: Server;
   let port: string;
 
