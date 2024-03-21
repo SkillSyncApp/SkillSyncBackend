@@ -43,7 +43,7 @@ The Skill Sync server is built using Node.js and Express.js, providing a RESTful
 
 ## API Documentation
 
-The API endpoints and their functionalities are documented in the [API Documentation](API_DOCUMENTATION.md) file.
+The API endpoints and their functionalities are documented in the [API Documentation](https://node03.cs.colman.ac.il/api-docs/) file.
 
 ---
 
