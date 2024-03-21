@@ -5,7 +5,6 @@ import { Express } from "express";
 import User from "../models/user";
 import ChatModel from "../models/chat";
 import UserModel from "../models/user";
-import MessageModel from "../models/message";
 
 let app: Express;
 let ownerId: string;
@@ -147,23 +146,4 @@ describe("Chat Routes", () => {
       .set("Authorization", `Bearer ${accessToken}`);
     expect(res.statusCode).toEqual(500);
   });
-  //   it("should handle internal server error when getting conversation with another user", async () => {
-  //     // Mocking the find method on the ChatModel prototype to throw an error
-  //     jest.spyOn(UserModel, "findById").mockImplementation((id: any) => {
-  //         const mockQuery: Partial<Query<any, any, any, any, any>> = {
-  //           exec: jest.fn(),
-  //           select: jest.fn().mockImplementation(() => {
-  //             throw new Error("Mocked select error");
-  //           })
-  //         };
-  //         return mockQuery as Query<any, any, any, any, any>;
-  //       });
-
-  //     // Test getting conversation with the second user for the first user
-  //     const res = await supertest(app)
-  //       .get(`/api/chat/conversation/with/${ownerId2}`)
-  //       .set("Authorization", `Bearer ${accessToken}`);
-  //     expect(res.statusCode).toEqual(500);
-  //     expect(res.body).toEqual({ message: "Internal Server Error" });
-  //   });
 });
