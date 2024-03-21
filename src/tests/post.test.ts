@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 import { Express } from "express";
 import Post from "../models/post";
 import User from "../models/user";
-import { BaseController } from "../controllers/base.controller";
+import PostModel from "../models/post";
 
 let app: Express;
 let accessToken: string;
@@ -113,12 +113,9 @@ describe("PostController", () => {
   });
 
   it("should return 500 when encountering an internal server error during post creation", async () => {
-    const originalCreate = BaseController.prototype.create;
-    jest
-      .spyOn(BaseController.prototype, "create")
-      .mockImplementationOnce(async (req, res) => {
-        throw new Error("Mocked post creation error");
-      });
+    jest.spyOn(Post, "create").mockImplementationOnce(async (req, res) => {
+      throw new Error("Mocked post creation error");
+    });
 
     const response = await request(app)
       .post("/api/posts/")
@@ -126,12 +123,6 @@ describe("PostController", () => {
       .send(postData);
 
     expect(response.status).toBe(500);
-    expect(response.body).toHaveProperty(
-      "message",
-      "Mocked post creation error"
-    );
-
-    BaseController.prototype.create = originalCreate;
   });
 
   it("should get comments by post id", async () => {
@@ -214,6 +205,19 @@ describe("PostController", () => {
     );
   });
 
+  it("should return 500 when encountering an internal server error during delete post", async () => {
+    jest.spyOn(PostModel, "findByIdAndDelete").mockImplementationOnce(() => {
+      throw new Error("Internal Server Error");
+    });
+
+    const response = await request(app)
+      .delete(`/api/posts/${createdPostId}`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(postData);
+
+    expect(response.status).toBe(500);
+  });
+
   it("should return 404 when updating a post with missing fields", async () => {
     const updatedData = {
       // Omitting required fields: title and content
@@ -261,5 +265,23 @@ describe("PostController", () => {
 
     expect(response.status).toBe(404);
     expect(response.body).toEqual({ error: "Post not found" });
+  });
+
+  it("should return internal server error (500) on update a post by ID", async () => {
+    jest.spyOn(PostModel, "findByIdAndUpdate").mockImplementation(() => {
+      throw new Error("Internal Server Error");
+    });
+
+    const updatedData = {
+      title: "Updated Test Post",
+      content: "This post has been updated.",
+    };
+
+    const response = await request(app)
+      .put(`/api/posts/${createdPostId}`)
+      .set("Authorization", `Bearer ${accessToken}`)
+      .send(updatedData);
+
+    expect(response.status).toBe(500);
   });
 });

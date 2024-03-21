@@ -54,8 +54,8 @@ initApp().then((app) => {
 
   server = server
     .listen(port, () => {
-      // TODO: print htpp/s
-      console.log(`Server running on http://localhost:${port}`);
+      if(process.env.NODE_ENV !== "production") console.log(`Server running on http://localhost:${port}`);
+      else console.log(`Server running on https://localhost:${port}`);
     })
     .on("error", (err) => {
       console.error("Error creating HTTPS server:", err.message);
